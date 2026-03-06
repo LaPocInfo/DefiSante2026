@@ -1,27 +1,22 @@
-Voici un **workflow adapté pour une équipe composée de 2 étudiants et 1 professeur**, où **le professeur agit comme réviseur principal et approuve les Pull Requests** sur **GitHub**. Le modèle reste basé sur le **GitHub Flow**, mais avec un contrôle pédagogique.
-
-------
-
-# Workflow Git pour 2 étudiants + 1 professeur
+# Workflow Git proposé
 
 ## Rôles
 
-| Rôle       | Responsabilité                               |
-| ---------- | -------------------------------------------- |
-| Étudiant 1 | développe des fonctionnalités                |
-| Étudiant 2 | développe d'autres fonctionnalités           |
-| Professeur | révise le code et approuve les Pull Requests |
+| Rôle       | Responsabilité                                               |
+| ---------- | ------------------------------------------------------------ |
+| Étudiant 1 | développe des fonctionnalités                                |
+| Étudiant 2 | développe d'autres fonctionnalités                           |
+| Professeur | révise le code et approuve les *Pull Requests* chaque semaine |
 
-Les étudiants **ne fusionnent pas directement dans `main`**.
-Seul le professeur approuve et autorise la fusion.
+Les étudiants **ne fusionnent pas directement dans `main`**.  Seul le professeur approuve et autorise la fusion.
 
 ------
 
-# 1. Création du dépôt
+## 1. Création du dépôt
 
-Le professeur crée le dépôt sur GitHub et ajoute les étudiants comme **collaborateurs**.
+Voir le dépôt sur GitHub https://github.com/LaPocInfo/DefiSante2026 et vous serez ajouté comme collaborateurs.
 
-Structure recommandée :
+Structure recommandée pour le développement
 
 ```
 projet/
@@ -35,13 +30,12 @@ projet/
 Les étudiants récupèrent le dépôt :
 
 ```bash
-git clone https://github.com/cours/projet.git
-cd projet
+git clone https://github.com/LaPocInfo/DefiSante2026
 ```
 
 ------
 
-# 2. Organisation des branches
+## 2. Organisation des branches
 
 La branche principale :
 
@@ -49,22 +43,24 @@ La branche principale :
 main
 ```
 
-Chaque étudiant crée une branche pour son travail :
+Chaque étudiant crée une branche pour son travail, pour chaque fonctionnalité:
 
 ```
-feature-interface
-feature-database
+fonctionnalite-n-web
+fonctionnalite-n-api
 ```
 
-Créer une branche :
+Chaque branche a son nom et son numéro `n`.  Par exemple, `depart-1-api` ou `bd_creationtables_1-api`
+
+Pour créer une branche :
 
 ```bash
-git checkout -b feature-interface
+git checkout -b fonctionnalite-n-api
 ```
 
 ------
 
-# 3. Développement
+## 3. Développement
 
 Chaque étudiant travaille localement.
 
@@ -77,48 +73,51 @@ git commit -m "Ajout interface utilisateur"
 
 Bonnes pratiques :
 
-- commits fréquents
+- *commits* fréquents
 - messages clairs
 - petites modifications
 
 ------
 
-# 4. Envoyer les modifications
+## 4. Envoyer les modifications
 
 Quand une fonctionnalité est prête :
 
 ```bash
-git push origin feature-interface
+git push origin fonctionnalite-n-api
 ```
 
 La branche apparaît sur GitHub.
 
 ------
 
-# 5. Création d’une Pull Request
+## 5. Création d’une *Pull Request*
 
-L’étudiant crée une Pull Request :
+L’étudiant crée une *Pull Request* :
 
 ```
-feature-interface → main
+fonctionnalite-n-web → main
 ```
 
-La Pull Request doit inclure :
+La *Pull Request* doit inclure :
 
 - description du changement
 - fichiers modifiés
 - explication de la fonctionnalité
 
-------
+Voici comment réaliser un *Pull Request*
 
-# 6. Révision par le professeur
+1. Rendez‑vous sur la page du dépôt sur GitHub.
+2. Vous verrez un bandeau « Compare & pull request ». Cliquez dessus, ou choisissez **Pull requests → New pull request**.
+3. Sélectionnez votre branche comme *head* (source) et la branche cible du dépôt d’origine ( `main`).
+4. Ajoutez un titre, une description détaillée, puis cliquez sur **Create pull request**.
 
-Le professeur :
+Durant la semaine ou le plus vite posssible, je vais
 
-- lit les modifications
-- commente le code
-- demande des corrections si nécessaire
-- approuve la Pull Request
+- lire les modifications proposées dans les *Pull requests*
+- commenter le code
+- demander des corrections si nécessaire
+- approuver la *Pull Request*
 
 Les étudiants peuvent devoir corriger :
 
@@ -128,70 +127,58 @@ git commit -m "Correction demandée dans la review"
 git push
 ```
 
-La Pull Request est mise à jour automatiquement.
+La *Pull Request* est mise à jour automatiquement.
 
 ------
 
-# 7. Fusion
+## 7. Fusion
 
-Après approbation :
-
-Le professeur fusionne la Pull Request dans `main`.
+Après approbation d'un *Pull request*, c'est le prof. qui fusionne dans `main`.
 
 ------
 
-# 8. Mise à jour des étudiants
+## 8. Mise à jour des étudiants
 
-Les étudiants récupèrent les nouvelles modifications :
+Les étudiants récupèrent les nouvelles modifications à chaque début de travail:
 
 ```bash
 git checkout main
 git pull
 ```
 
-Puis mettent leur branche à jour :
+Puis mettent leurs branches de travail à jour :
 
 ```bash
-git checkout feature-database
+git checkout fonctionnalite-n-web
 git merge main
 ```
 
 ------
 
-# Exemple concret
-
-| Personne   | Branche           | Travail             |
-| ---------- | ----------------- | ------------------- |
-| Étudiant 1 | feature-interface | interface           |
-| Étudiant 2 | feature-database  | base de données     |
-| Professeur | main              | validation et merge |
-
-------
-
-# Diagramme du workflow
+## Diagramme du workflow
 
 ```
 main
  │
- ├── feature-interface (étudiant 1)
+ ├── fonctionnalite-n-web (étudiant 1)
  │        │
  │        └── Pull Request → prof → merge
  │
- └── feature-database (étudiant 2)
+ └── fonctionnalite-n-api (étudiant 2)
           │
           └── Pull Request → prof → merge
 ```
 
 ------
 
-# Règles importantes
+## Règles importantes
 
 ### 1. Les étudiants ne modifient jamais `main` directement
 
 Toujours travailler dans une branche :
 
 ```
-feature-...
+fonctionnalite-...
 ```
 
 ------
@@ -201,9 +188,9 @@ feature-...
 Exemple :
 
 ```
-feature-login
-feature-api
-fix-bug-affichage
+login-5-api
+fonctionnalite-n-web
+fix-bug-affichage-10-api
 ```
 
 ------
@@ -219,25 +206,11 @@ git pull
 
 ------
 
-# Avantages pédagogiques
+## Avantages
 
-Ce modèle permet aux étudiants de pratiquer :
+Ce modèle permet de pratiquer :
 
 - collaboration avec Git
 - gestion des branches
-- Pull Requests
-- code review
-
-Et permet au professeur de :
-
-- **contrôler la qualité du code**
-- **voir l’historique du travail**
-- **commenter directement dans le code**
-
-------
-
-✅ Si vous voulez, je peux aussi vous fournir :
-
-- **un guide GitHub de 1 page pour étudiants (workflow + commandes)**
-- **un exercice de laboratoire GitHub (45 min)**
-- **un schéma visuel très clair du workflow Git pour projeter en classe**.
+- *Pull Requests*
+- *code review*
