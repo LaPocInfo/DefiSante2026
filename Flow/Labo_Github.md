@@ -6,8 +6,8 @@ Apprendre à collaborer avec GitHub en utilisant :
 
 - branches
 - commits
-- Pull Requests
-- code review
+- *Pull Requests*
+- *code review*
 
 ------
 
@@ -18,7 +18,7 @@ Deux étudiants travaillent sur un petit projet Python contenant un programme si
 Structure du projet :
 
 ```
-projet/
+/api/
 │
 ├── main.py
 ├── README.md
@@ -43,13 +43,13 @@ cd projet
 Étudiant 1 :
 
 ```
-git checkout -b feature-salutation
+git checkout -b salutation-test-1-api
 ```
 
 Étudiant 2 :
 
 ```
-git checkout -b feature-calcul
+git checkout -b calcul-test-2-api
 ```
 
 ------
@@ -60,7 +60,7 @@ git checkout -b feature-calcul
 
 Ajouter dans `fonctions.py` :
 
-```
+```python
 def saluer(nom):
     return "Bonjour " + nom
 ```
@@ -69,7 +69,7 @@ def saluer(nom):
 
 Ajouter :
 
-```
+```python
 def carre(nombre):
     return nombre * nombre
 ```
@@ -94,18 +94,18 @@ git commit -m "Ajout fonction carre"
 # Étape 5 – Push
 
 ```
-git push origin feature-salutation
-git push origin feature-calcul
+git push origin salutation-test-1-api
+git push origin calcul-test-2-api
 ```
 
 ------
 
-# Étape 6 – Pull Request
+# Étape 6 – *Pull Request*
 
 Chaque étudiant :
 
 1. ouvre GitHub
-2. crée une **Pull Request vers main**
+2. crée une ***Pull Request* vers main**
 
 ------
 
@@ -121,7 +121,7 @@ Le professeur :
 
 # Étape 8 – Fusion
 
-Le professeur fusionne la Pull Request dans `main`.
+Le professeur fusionne la *Pull Request* dans `main`.
 
 ------
 
@@ -140,19 +140,10 @@ git pull
 
 Le fichier `fonctions.py` contient :
 
-```
+```python
 def saluer(nom):
     return "Bonjour " + nom
 
 def carre(nombre):
     return nombre * nombre
 ```
-
-------
-
-# Questions de réflexion
-
-1. Pourquoi utilise-t-on des branches ?
-2. À quoi sert une Pull Request ?
-3. Pourquoi est-il utile de faire des commits fréquents ?
-4. Quels problèmes pourraient arriver si deux personnes modifient le même fichier ?

@@ -56,7 +56,7 @@ git add .
 
 ------
 
-## 5. Faire un commit
+## 5. Faire un *commit*
 
 Sauvegarder vos modifications dans Git :
 
@@ -92,7 +92,7 @@ git push origin feature-interface
 
 ------
 
-## 7. Créer une Pull Request
+## 7. Créer une *Pull Request*
 
 Sur GitHub :
 
@@ -102,7 +102,7 @@ Sur GitHub :
 4. choisir :
 
 ```
-feature-xxx → main
+fonctionnalite-xxx → main
 ```
 
 Ajouter :
@@ -119,7 +119,7 @@ Le professeur :
 - lit le code
 - ajoute des commentaires
 - demande des corrections si nécessaire
-- approuve la Pull Request
+- approuve la *Pull Request*
 
 ------
 
@@ -150,8 +150,8 @@ git merge main
 
 ✔ Ne jamais modifier `main` directement
 ✔ Une branche par fonctionnalité
-✔ Faire des commits fréquents
-✔ Toujours faire une Pull Request
+✔ Faire des *commits* fréquents
+✔ Toujours faire une *Pull Request*
 
 ------
 
