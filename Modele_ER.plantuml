@@ -1,0 +1,72 @@
+@startuml
+' =====================================================
+' Modèle Entité-Relation - Défi Santé
+' =====================================================
+
+hide circle
+skinparam linetype ortho
+
+entity Equipe {
+    + id_equipe : int <<PK>>
+    --
+    nom : varchar
+    description : text
+}
+
+entity Participant {
+    + id_participant : int <<PK>>
+    --
+    prenom : varchar
+    nom : varchar
+    courriel : varchar
+    sexe : varchar
+    date_inscription : date
+    id_equipe : int <<FK>>
+}
+
+entity Activite {
+    + id_activite : int <<PK>>
+    --
+    nom : varchar
+    description : text
+    points_homme : decimal
+    points_femme : decimal
+    points_mixte : decimal
+}
+
+entity SaisieActivite {
+    + id_saisie : int <<PK>>
+    --
+    date_activite : date
+    duree_minutes : int
+    points_obtenus : decimal
+    id_participant : int <<FK>>
+    id_activite : int <<FK>>
+}
+
+entity Defi {
+    + id_defi : int <<PK>>
+    --
+    nom : varchar
+    date_debut : date
+    date_fin : date
+}
+
+entity ParticipationDefi {
+    + id_participation : int <<PK>>
+    --
+    id_defi : int <<FK>>
+    id_participant : int <<FK>>
+}
+
+' ======================
+' Relations
+' ======================
+
+Equipe ||--o{ Participant : contient
+Participant ||--o{ SaisieActivite : enregistre
+Activite ||--o{ SaisieActivite : concerne
+Defi ||--o{ ParticipationDefi : comprend
+Participant ||--o{ ParticipationDefi : participe
+
+@enduml
