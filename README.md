@@ -64,4 +64,6 @@ Le projet numérique serait alors de créer 2 applications (à partir de zéro):
 1. Un API *Back-end* écrit en **Flask (Python)** complet permettant de gérer l'ensemble des données sauvegardés dans une base de données **PostgreSQL**;
 2. Un application Web ou mobile (*Front-end*) qui sera utilisé par les participants et les organisateurs.  Le choix de la technologie n'est pas fixée.  Il est suggéré d'utiliser *Flutter* mais une autre technologie est possible.
 
-L'API devra fournir un niveau de sécurité approprié.  L'application *Front-end* devra être fonctionnel, convivial et robuste.  Des comptes participants et gestionnaires devront être intégrés et permettent des interfaces de gestion différentes.
+L'API devra fournir un niveau de sécurité approprié.  Il faudra qu'une configuration OpenAPI / Swagger pour la spécification des routes et la documentation interactive. L'application *Front-end* devra être fonctionnel, convivial et robuste.  Des comptes participants et gestionnaires devront être intégrés et permettent des interfaces de gestion différentes.
+
+Pour pouvoir tester l'API, il faudra fournir un `docker-compose.yml` adaptée pour exécuter le code localement sur les postes de travail.  Si possible, il faudrait la même chose pour l'application *Front-end*.
