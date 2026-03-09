@@ -67,3 +67,17 @@ Le projet numérique serait alors de créer 2 applications (à partir de zéro):
 L'API devra fournir un niveau de sécurité approprié.  Il faudra qu'une configuration OpenAPI / Swagger pour la spécification des routes et la documentation interactive. L'application *Front-end* devra être fonctionnel, convivial et robuste.  Des comptes participants et gestionnaires devront être intégrés et permettent des interfaces de gestion différentes.
 
 Pour pouvoir tester l'API, il faudra fournir un `docker-compose.yml` adaptée pour exécuter le code localement sur les postes de travail.  Si possible, il faudrait la même chose pour l'application *Front-end*.
+
+## Premières étapes de développement
+
+1. Projet "Hello World" API Flask, dépôt sur Github
+2. Projet "Hello World" Front-end, dépôt sur Github
+3. Création Docker-compose.yml API Flask
+4. Création Docker-compose.yml Front-end
+5. Premier Pull-request pour tester
+6. Développement de la première fonctionnalité API Flask
+7. Développement de la première fonctionnalité Front-end
+8. Pull-request API Flask
+9. Pull-request Front-end
+10. ...
+
