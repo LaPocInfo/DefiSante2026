@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Santé</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="auth-logo-mark">🏃</div>
+      <h1>Défi Santé</h1>
+      <p>Bougez, gagnez des points, dépassez-vous</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="connexion">Connexion</button>
+      <button class="auth-tab" data-tab="inscription">Inscription</button>
+    </div>
+
+    <div id="alert-auth"></div>
+
+    
+    <div id="tab-connexion">
+      <div class="form-group">
+        <label class="form-label">Courriel</label>
+        <input type="email" id="login-email" class="form-control" placeholder="votre@courriel.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" id="login-mdp" class="form-control" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-green btn-block btn-lg" onclick="doLogin()">Se connecter</button>
+      <p style="text-align:center;margin-top:1.25rem;font-size:0.78rem;color:var(--text3)">
+        Compte gestionnaire par défaut<br>
+        <span style="color:var(--text2);font-family:monospace">admin@defisante.local</span> /
+        <span style="color:var(--text2);font-family:monospace">Admin123!</span>
+      </p>
+    </div>
+
+    
+    <div id="tab-inscription" class="hidden">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input type="text" id="reg-prenom" class="form-control" placeholder="Jean">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input type="text" id="reg-nom" class="form-control" placeholder="Tremblay">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Courriel</label>
+        <input type="email" id="reg-email" class="form-control" placeholder="jean@exemple.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" id="reg-mdp" class="form-control" placeholder="Minimum 6 caractères">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sexe biologique</label>
+        <select id="reg-sexe" class="form-control">
+          <option value="">— Choisir —</option>
+          <option value="homme">Homme</option>
+          <option value="femme">Femme</option>
+          <option value="mixte">Préfère ne pas préciser</option>
+        </select>
+        <div class="form-hint">Utilisé pour le calcul des points selon la pondération.</div>
+      </div>
+      <button class="btn btn-green btn-block btn-lg" onclick="doRegister()">Créer mon compte</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  if (Auth.isLoggedIn()) window.location.href = "/pages/tableau-de-bord.html";
+
+  document.querySelectorAll(".auth-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      const w = tab.dataset.tab;
+      document.getElementById("tab-connexion").classList.toggle("hidden", w !== "connexion");
+      document.getElementById("tab-inscription").classList.toggle("hidden", w !== "inscription");
+      document.getElementById("alert-auth").innerHTML = "";
+    });
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    const active = document.querySelector(".auth-tab.active")?.dataset.tab;
+    if (active === "connexion") doLogin(); else doRegister();
+  });
+
+  async function doLogin() {
+    const email = document.getElementById("login-email").value.trim();
+    const mdp   = document.getElementById("login-mdp").value;
+    if (!email || !mdp) { showAlert("#alert-auth", "Veuillez remplir tous les champs."); return; }
+    try {
+      const data = await POST("/auth/connexion", { courriel: email, mot_de_passe: mdp });
+      Auth.setSession(data.token, data.participant);
+      window.location.href = "/pages/tableau-de-bord.html";
+    } catch (e) { showAlert("#alert-auth", e.message); }
+  }
+
+  async function doRegister() {
+    const prenom = document.getElementById("reg-prenom").value.trim();
+    const nom    = document.getElementById("reg-nom").value.trim();
+    const email  = document.getElementById("reg-email").value.trim();
+    const mdp    = document.getElementById("reg-mdp").value;
+    const sexe   = document.getElementById("reg-sexe").value;
+    if (!prenom || !nom || !email || !mdp || !sexe) { showAlert("#alert-auth", "Veuillez remplir tous les champs."); return; }
+    if (mdp.length < 6) { showAlert("#alert-auth", "Mot de passe trop court (min 6 caractères)."); return; }
+    try {
+      const data = await POST("/auth/inscription", { prenom, nom, courriel: email, mot_de_passe: mdp, sexe });
+      Auth.setSession(data.token, data.participant);
+      window.location.href = "/pages/tableau-de-bord.html";
+    } catch (e) { showAlert("#alert-auth", e.message); }
+  }
+</script>
+</body>
+</html>
