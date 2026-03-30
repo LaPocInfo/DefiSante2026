@@ -1,5 +1,6 @@
 http://localhost:5000/api/activites/
 
+
 Route pour le test devrait renvoyer :
  [
   {
@@ -10,6 +11,7 @@ Route pour le test devrait renvoyer :
     "points_homme": 5.6,
     "points_mixte": 5.6
   },
+  
   {
     "description": "Travail physiquement exigeant (construction, etc.)",
     "id_activite": 108,
@@ -18,4 +20,5 @@ Route pour le test devrait renvoyer :
     "points_homme": 4.0,
     "points_mixte": 4.0
   },
+  
   et ainsi de suite
