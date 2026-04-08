@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Santé — Gestion</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .g-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+    @media(max-width:900px){.g-grid{grid-template-columns:1fr}}
+    .section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    .section-head{padding:.875rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg3)}
+    .section-title{font-family:var(--font-head);font-size:.82rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+    .section-body{padding:.75rem 1.25rem;max-height:380px;overflow-y:auto}
+    .item{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
+    .item:last-child{border-bottom:none}
+    .item-info{flex:1;min-width:0}
+    .item-nom{font-size:.875rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-sub{font-size:.75rem;color:var(--text3);margin-top:.1rem}
+    .item-actions{display:flex;gap:.3rem;flex-shrink:0}
+    .defi-active-bar{height:3px;background:linear-gradient(90deg,var(--accent),transparent);margin-bottom:0}
+  </style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a href="/pages/tableau-de-bord.html" class="nav-logo"><span class="logo-dot"></span> Défi Santé</a>
+  <div class="nav-links">
+    <a href="/pages/tableau-de-bord.html" class="nav-link">Tableau de bord</a>
+    <a href="/pages/saisie.html" class="nav-link">Saisir activité</a>
+    <a href="/pages/mes-activites.html" class="nav-link">Mes activités</a>
+    <a href="/pages/classement.html" class="nav-link">Classement</a>
+    <a href="/pages/equipes.html" class="nav-link">Équipes</a>
+    <a href="/pages/gestion.html" class="nav-link active">Gestion</a>
+  </div>
+  <div class="nav-user"></div>
+</div></nav>
+<div class="page">
+  <div class="page-header">
+    <div><div class="page-title">Gestion</div><div class="page-subtitle">Administration du Défi Santé</div></div>
+  </div>
+
+  <div id="access-denied" class="hidden">
+    <div class="card" style="text-align:center;padding:3rem">
+      <div style="font-size:2.5rem;margin-bottom:1rem;opacity:.4">🔒</div>
+      <div class="page-title" style="font-size:1.25rem;margin-bottom:.5rem">Accès réservé</div>
+      <p style="color:var(--text2);font-size:.875rem">Cette page est accessible uniquement aux gestionnaires.</p>
+      <a href="/pages/tableau-de-bord.html" class="btn btn-green" style="margin-top:1.5rem">← Retour au tableau de bord</a>
+    </div>
+  </div>
+
+  <div id="g-content">
+    <div id="alert-g" style="margin-bottom:1rem"></div>
+    <div class="g-grid">
+
+      <!-- DÉFIS -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">Défis</span>
+          <button class="btn btn-green btn-sm" onclick="openModal('m-defi')">+ Nouveau</button>
+        </div>
+        <div class="section-body" id="list-defis"><div class="loading-center"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- PARTICIPANTS -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">Participants</span>
+          <button class="btn btn-green btn-sm" onclick="newParticipant()">+ Ajouter</button>
+        </div>
+        <div style="padding:.625rem 1.25rem;border-bottom:1px solid var(--border)">
+          <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="s-part" placeholder="Rechercher..."></div>
+        </div>
+        <div class="section-body" id="list-parts"><div class="loading-center"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- ACTIVITÉS -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">Activités</span>
+          <button class="btn btn-green btn-sm" onclick="openModal('m-act')">+ Nouvelle</button>
+        </div>
+        <div style="padding:.625rem 1.25rem;border-bottom:1px solid var(--border)">
+          <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="s-act" placeholder="Rechercher..."></div>
+        </div>
+        <div class="section-body" id="list-acts"><div class="loading-center"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- SAISIES RÉCENTES -->
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">Saisies récentes</span>
+          <select id="f-defi-s" class="form-control" style="width:auto;padding:.3rem .6rem;font-size:.8rem" onchange="loadSaisies()"><option value="">Tous</option></select>
+        </div>
+        <div class="section-body" id="list-saisies"><div class="loading-center"><div class="spinner"></div></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Défi -->
+<div class="modal-backdrop hidden" id="m-defi">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="defi-m-title">Nouveau défi</div><button class="modal-close">✕</button></div>
+    <div class="modal-body">
+      <div id="alert-m-defi"></div>
+      <input type="hidden" id="defi-id">
+      <div class="form-group"><label class="form-label">Nom du défi</label><input type="text" id="defi-nom" class="form-control" placeholder="Défi Santé Printemps 2026"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date de début</label><input type="date" id="defi-debut" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Date de fin</label><input type="date" id="defi-fin" class="form-control"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('m-defi')">Annuler</button><button class="btn btn-green" onclick="saveDefi()">Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- Modal Activité -->
+<div class="modal-backdrop hidden" id="m-act">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="act-m-title">Nouvelle activité</div><button class="modal-close">✕</button></div>
+    <div class="modal-body">
+      <div id="alert-m-act"></div>
+      <input type="hidden" id="act-id">
+      <div class="form-group"><label class="form-label">Nom</label><input type="text" id="act-nom" class="form-control"></div>
+      <div class="form-group"><label class="form-label">Description</label><input type="text" id="act-desc" class="form-control" placeholder="Optionnel"></div>
+      <div class="form-row" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="form-group"><label class="form-label">Pts Homme</label><input type="number" id="act-ph" class="form-control" step=".1" min="0"></div>
+        <div class="form-group"><label class="form-label">Pts Femme</label><input type="number" id="act-pf" class="form-control" step=".1" min="0"></div>
+        <div class="form-group"><label class="form-label">Pts Mixte</label><input type="number" id="act-pm" class="form-control" step=".1" min="0"></div>
+      </div>
+      <div class="form-hint">Points par tranche de 30 minutes à intensité moyenne</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('m-act')">Annuler</button><button class="btn btn-green" onclick="saveAct()">Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- Modal Participant -->
+<div class="modal-backdrop hidden" id="m-part">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="part-m-title">Nouveau participant</div><button class="modal-close">✕</button></div>
+    <div class="modal-body">
+      <div id="alert-m-part"></div>
+      <input type="hidden" id="part-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Prénom</label><input type="text" id="p-prenom" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Nom</label><input type="text" id="p-nom" class="form-control"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Courriel</label><input type="email" id="p-email" class="form-control"></div>
+      <div class="form-group" id="p-mdp-wrap"><label class="form-label">Mot de passe</label><input type="password" id="p-mdp" class="form-control" placeholder="Min 6 caractères"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Sexe</label>
+          <select id="p-sexe" class="form-control"><option value="">— Choisir —</option><option value="homme">Homme</option><option value="femme">Femme</option><option value="mixte">Mixte/NP</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Rôle</label>
+          <select id="p-role" class="form-control"><option value="participant">Participant</option><option value="gestionnaire">Gestionnaire</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('m-part')">Annuler</button><button class="btn btn-green" onclick="savePart()">Enregistrer</button></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+if(!Auth.requireAuth())throw 0;
+if(!Auth.isGestionnaire()){document.getElementById("g-content").classList.add("hidden");document.getElementById("access-denied").classList.remove("hidden");}
+
+let allParts=[],allActs=[],allDefis=[];
+
+async function init(){
+  if(!Auth.isGestionnaire())return;
+  await Promise.all([loadDefis(),loadParts(),loadActs(),loadSaisies()]);
+  document.getElementById("s-part").addEventListener("input",renderParts);
+  document.getElementById("s-act").addEventListener("input",renderActs);
+}
+
+// ── DÉFIS ────────────────────────────────────────────────────────────────────
+async function loadDefis(){
+  try{
+    allDefis=await GET("/defis/");
+    const sel=document.getElementById("f-defi-s");
+    allDefis.forEach(d=>{const o=document.createElement("option");o.value=d.id_defi;o.textContent=d.nom;sel.appendChild(o);});
+    renderDefis();
+  }catch{}
+}
+function renderDefis(){
+  document.getElementById("list-defis").innerHTML=allDefis.length?allDefis.map(d=>`
+    ${d.actif?'<div class="defi-active-bar"></div>':""}
+    <div class="item">
+      <div class="item-info">
+        <div class="item-nom">${d.nom} ${d.actif?'<span class="badge badge-green">Actif</span>':''}</div>
+        <div class="item-sub">${fmt.date(d.date_debut)} → ${fmt.date(d.date_fin)} · ${d.nb_participants} participant(s)</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editDefi(${d.id_defi})">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="delDefi(${d.id_defi})">🗑️</button>
+      </div>
+    </div>`).join(""):emptyState("🏆","Aucun défi","Créez le premier défi !");
+}
+function editDefi(id){
+  const d=allDefis.find(x=>x.id_defi===id);
+  document.getElementById("defi-id").value=id;
+  document.getElementById("defi-nom").value=d.nom;
+  document.getElementById("defi-debut").value=d.date_debut;
+  document.getElementById("defi-fin").value=d.date_fin;
+  document.getElementById("defi-m-title").textContent="Modifier le défi";
+  openModal("m-defi");
+}
+async function saveDefi(){
+  const id=document.getElementById("defi-id").value;
+  const nom=document.getElementById("defi-nom").value.trim();
+  const debut=document.getElementById("defi-debut").value;
+  const fin=document.getElementById("defi-fin").value;
+  if(!nom||!debut||!fin){showAlert("#alert-m-defi","Tous les champs sont requis.");return;}
+  try{
+    if(id)await PUT(`/defis/${id}`,{nom,date_debut:debut,date_fin:fin});
+    else await POST("/defis/",{nom,date_debut:debut,date_fin:fin});
+    closeModal("m-defi");
+    document.getElementById("defi-id").value="";
+    document.getElementById("defi-m-title").textContent="Nouveau défi";
+    showAlert("#alert-g",`Défi ${id?"modifié":"créé"} avec succès.`,"success");
+    allDefis=await GET("/defis/");renderDefis();
+  }catch(e){showAlert("#alert-m-defi",e.message);}
+}
+async function delDefi(id){
+  const d=allDefis.find(x=>x.id_defi===id);
+  if(!confirm(`Supprimer "${d?.nom}" ?`))return;
+  try{await DELETE(`/defis/${id}`);showAlert("#alert-g","Défi supprimé.","success");allDefis=await GET("/defis/");renderDefis();}
+  catch(e){showAlert("#alert-g",e.message);}
+}
+
+// ── PARTICIPANTS ──────────────────────────────────────────────────────────────
+async function loadParts(){try{allParts=await GET("/participants/");renderParts();}catch{}}
+function renderParts(){
+  const q=document.getElementById("s-part").value.toLowerCase();
+  const r=q?allParts.filter(p=>`${p.prenom} ${p.nom} ${p.courriel}`.toLowerCase().includes(q)):allParts;
+  document.getElementById("list-parts").innerHTML=r.length?r.map(p=>`
+    <div class="item">
+      <div class="nav-avatar" style="width:30px;height:30px;font-size:.7rem;flex-shrink:0">${p.prenom[0]}${p.nom[0]}</div>
+      <div class="item-info">
+        <div class="item-nom">${p.prenom} ${p.nom} <span class="badge ${p.role==="gestionnaire"?"badge-orange":"badge-gray"}">${p.role}</span></div>
+        <div class="item-sub">${p.courriel} · ${p.equipe_nom?`👥 ${p.equipe_nom}`:"Sans équipe"}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editPart(${p.id_participant})">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="delPart(${p.id_participant},'${p.prenom}')">🗑️</button>
+      </div>
+    </div>`).join(""):emptyState("👤","Aucun résultat");
+}
+function newParticipant(){
+  document.getElementById("part-id").value="";
+  document.getElementById("p-prenom").value="";document.getElementById("p-nom").value="";
+  document.getElementById("p-email").value="";document.getElementById("p-sexe").value="";
+  document.getElementById("p-role").value="participant";
+  document.getElementById("p-mdp-wrap").innerHTML='<label class="form-label">Mot de passe</label><input type="password" id="p-mdp" class="form-control" placeholder="Min 6 caractères">';
+  document.getElementById("part-m-title").textContent="Nouveau participant";
+  openModal("m-part");
+}
+function editPart(id){
+  const p=allParts.find(x=>x.id_participant===id);
+  document.getElementById("part-id").value=id;
+  document.getElementById("p-prenom").value=p.prenom;document.getElementById("p-nom").value=p.nom;
+  document.getElementById("p-email").value=p.courriel;document.getElementById("p-sexe").value=p.sexe;
+  document.getElementById("p-role").value=p.role;
+  document.getElementById("p-mdp-wrap").innerHTML='<label class="form-label">Nouveau mot de passe <span style="font-weight:400;color:var(--text3)">(laisser vide = inchangé)</span></label><input type="password" id="p-mdp" class="form-control" placeholder="Nouveau mot de passe">';
+  document.getElementById("part-m-title").textContent="Modifier le participant";
+  openModal("m-part");
+}
+async function savePart(){
+  const id=document.getElementById("part-id").value;
+  const prenom=document.getElementById("p-prenom").value.trim(),nom=document.getElementById("p-nom").value.trim();
+  const courriel=document.getElementById("p-email").value.trim(),sexe=document.getElementById("p-sexe").value;
+  const role=document.getElementById("p-role").value,mdp=document.getElementById("p-mdp")?.value;
+  if(!prenom||!nom||!courriel||!sexe){showAlert("#alert-m-part","Champs requis manquants.");return;}
+  if(!id&&(!mdp||mdp.length<6)){showAlert("#alert-m-part","Mot de passe requis (min 6 car.).");return;}
+  try{
+    const body={prenom,nom,courriel,sexe,role};if(mdp)body.mot_de_passe=mdp;
+    if(id)await PUT(`/participants/${id}`,body);
+    else await POST("/auth/inscription",{...body,mot_de_passe:mdp});
+    closeModal("m-part");
+    showAlert("#alert-g",`Participant ${id?"modifié":"créé"}.`,"success");
+    allParts=await GET("/participants/");renderParts();
+  }catch(e){showAlert("#alert-m-part",e.message);}
+}
+async function delPart(id,nom){
+  if(!confirm(`Supprimer "${nom}" ?`))return;
+  try{await DELETE(`/participants/${id}`);showAlert("#alert-g","Participant supprimé.","success");allParts=await GET("/participants/");renderParts();}
+  catch(e){showAlert("#alert-g",e.message);}
+}
+
+// ── ACTIVITÉS ─────────────────────────────────────────────────────────────────
+async function loadActs(){try{allActs=await GET("/activites/");renderActs();}catch{}}
+function renderActs(){
+  const q=document.getElementById("s-act").value.toLowerCase();
+  const r=q?allActs.filter(a=>a.nom.toLowerCase().includes(q)):allActs.slice(0,40);
+  document.getElementById("list-acts").innerHTML=r.length?r.map(a=>`
+    <div class="item">
+      <div class="item-info">
+        <div class="item-nom">${a.nom}</div>
+        <div class="item-sub">H:${a.points_homme} · F:${a.points_femme} · M:${a.points_mixte} pts/30min</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editAct(${a.id_activite})">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="delAct(${a.id_activite},'${a.nom.replace(/'/g,"\\'")}')">🗑️</button>
+      </div>
+    </div>`).join("")+(allActs.length>40&&!q?`<div style="text-align:center;padding:.5rem;font-size:.75rem;color:var(--text3)">Recherchez pour filtrer les ${allActs.length} activités</div>`:"")
+    :emptyState("🏃","Aucune activité");
+}
+function editAct(id){
+  const a=allActs.find(x=>x.id_activite===id);
+  document.getElementById("act-id").value=id;
+  document.getElementById("act-nom").value=a.nom;
+  document.getElementById("act-desc").value=a.description||"";
+  document.getElementById("act-ph").value=a.points_homme;
+  document.getElementById("act-pf").value=a.points_femme;
+  document.getElementById("act-pm").value=a.points_mixte;
+  document.getElementById("act-m-title").textContent="Modifier l'activité";
+  openModal("m-act");
+}
+async function saveAct(){
+  const id=document.getElementById("act-id").value;
+  const nom=document.getElementById("act-nom").value.trim();
+  const desc=document.getElementById("act-desc").value.trim();
+  const ph=parseFloat(document.getElementById("act-ph").value),pf=parseFloat(document.getElementById("act-pf").value),pm=parseFloat(document.getElementById("act-pm").value);
+  if(!nom||isNaN(ph)||isNaN(pf)||isNaN(pm)){showAlert("#alert-m-act","Tous les champs sont requis.");return;}
+  try{
+    const body={nom,description:desc,points_homme:ph,points_femme:pf,points_mixte:pm};
+    if(id)await PUT(`/activites/${id}`,body);else await POST("/activites/",body);
+    closeModal("m-act");
+    document.getElementById("act-id").value="";
+    document.getElementById("act-m-title").textContent="Nouvelle activité";
+    showAlert("#alert-g",`Activité ${id?"modifiée":"créée"}.`,"success");
+    allActs=await GET("/activites/");renderActs();
+  }catch(e){showAlert("#alert-m-act",e.message);}
+}
+async function delAct(id,nom){
+  if(!confirm(`Supprimer "${nom}" ?`))return;
+  try{await DELETE(`/activites/${id}`);showAlert("#alert-g","Activité supprimée.","success");allActs=await GET("/activites/");renderActs();}
+  catch(e){showAlert("#alert-g",e.message);}
+}
+
+// ── SAISIES ───────────────────────────────────────────────────────────────────
+async function loadSaisies(){
+  const did=document.getElementById("f-defi-s").value;
+  try{
+    const s=await GET(`/saisies/${did?"?id_defi="+did:""}`);
+    document.getElementById("list-saisies").innerHTML=s.length?s.slice(0,30).map(x=>`
+      <div class="item">
+        <div class="item-info">
+          <div class="item-nom">${x.participant_nom||"?"} — ${x.activite_nom||"?"}</div>
+          <div class="item-sub">${fmt.date(x.date_activite)} · ${fmt.mins(x.duree_minutes)} · ${fmt.intensite(x.intensite||"moyenne")}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+          <span class="pts-badge">+${x.points_obtenus.toFixed(1)}</span>
+          <button class="btn btn-red btn-sm" onclick="delSaisie(${x.id_saisie})">🗑️</button>
+        </div>
+      </div>`).join("")+(s.length>30?`<div style="text-align:center;padding:.5rem;font-size:.75rem;color:var(--text3)">30 dernières sur ${s.length}</div>`:"")
+      :emptyState("📋","Aucune saisie");
+  }catch{}
+}
+async function delSaisie(id){
+  if(!confirm("Supprimer cette saisie ?"))return;
+  try{await DELETE("/saisies/"+id);showAlert("#alert-g","Saisie supprimée.","success");await loadSaisies();}
+  catch(e){showAlert("#alert-g",e.message);}
+}
+
+init();
+</script>
+</body>
+</html>
