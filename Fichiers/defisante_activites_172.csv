@@ -1,0 +1,172 @@
+Activite,Points_Homme,Points_Femme,Points_Mixte
+aquaforme,5.6,5.6,8.8
+aviron,5.6,5.6,8.8
+badminton,3.6,6.4,8.0
+basket,4.0,4.8,6.4
+canot,3.2,3.6,4.0
+corde à danser,5.6,6.8,9.2
+course / jogging,4.8,5.8,6.4
+course entraînement,7.2,10.4,12.0
+danse aérobie,4.4,4.8,6.0
+élliptique appareil,5.8,6.4,7.2
+équitation,3.2,4.8,5.6
+escalade,8.8,8.8,8.8
+escaliers,4.8,5.6,6.4
+escrime,4.8,5.6,6.4
+football,7.2,7.2,7.2
+golf,2.8,3.2,4.4
+handball,6.4,7.2,8.8
+hockey,7.2,7.2,7.2
+arts martiaux,6.4,7.2,8.8
+marche,2.4,3.6,4.8
+WII,1.5,1.5,1.5
+natation,4.8,6.4,8.0
+patin à glace,4.4,6.0,7.2
+patinage à roues alignées,5.6,7.2,9.6
+pilates,2.4,3.2,4.0
+planche roues / neige,4.0,4.0,4.0
+racquetball,5.6,7.2,8.8
+randonnée montagne,3.6,5.2,7.2
+raquette neige,5.6,6.4,7.2
+ski alpin,4.0,4.8,6.4
+ski de fond,5.6,7.2,8.8
+soccer,5.6,7.2,8.0
+spinning,5.6,7.2,8.8
+squash,5.6,7.2,8.8
+tai chi,3.2,3.2,3.2
+tennis,4.0,5.6,8.0
+tennis de table,3.2,4.8,5.6
+vélo sur route,3.2,6.4,9.6
+vélo stationnaire,2.4,4.4,8.8
+volley ball,2.4,4.0,4.8
+water polo,6.4,6.4,7.2
+yoga,2.4,2.4,2.4
+podomètre,0.0075,0.00857143,0.01
+Baladi,4.4,4.4,4.4
+Flamenco,4.4,4.4,4.4
+Danse sociale,4.8,4.8,4.8
+Danse jazz,4.8,4.8,4.8
+Danse classique,4.8,4.8,4.8
+Danse hip-hop,6.0,6.0,6.0
+tap dance,6.0,6.0,6.0
+bonus,600.0,600.0,600.0
+gymnastique sportive et cheerleading,3.0,3.5,4.0
+Boxe: punching bag,3.0,3.5,3.7
+Boxe: combat,5.0,5.5,6.0
+Boxe: pratique,8.0,8.5,9.0
+Curling,2.0,2.0,2.0
+Quilles,1.5,1.5,1.5
+raquetball,3.5,3.5,5.0
+squash,4.0,5.0,6.0
+kin-ball,2.5,3.0,3.5
+hockey cosom,3.5,4.0,4.5
+flag football,3.5,4.0,4.5
+trampoline,2.0,2.5,2.5
+jouer dehors,1.4,2.0,2.5
+pelleter,3.0,3.5,4.5
+jardinage,1.8,2.3,3.0
+planche à voile,1.5,2.0,2.5
+Ultimate Frisbee,2.4,4.0,4.8
+Tabac no. 1,15.0,0.0,0.0
+Tabac no. 2,-15.0,0.0,0.0
+Tabac no. 3,-30.0,0.0,0.0
+Alcool,-15.0,0.0,0.0
+bonus,300.0,300.0,300.0
+Sédentarité no. 1,150.0,0.0,0.0
+Sédentarité no. 2,150.0,0.0,0.0
+Sommeil,150.0,0.0,0.0
+tâches ménagères,1.8,2.3,3.0
+rugby,4.0,5.0,6.0
+vélo de montagne récréatif,3.5,4.0,4.5
+step,3.2,3.8,4.0
+cross training,7.2,10.4,12.0
+plongeon,2.0,3.2,4.4
+Personnalisée no. 1,300.0,0.0,0.0
+Personnalisée no. 2,300.0,0.0,0.0
+Personnalisée no. 3,150.0,0.0,0.0
+aquafit,5.6,5.6,8.8
+paddle,5.6,5.6,8.8
+canoe,3.2,3.6,4.0
+skipping rope,5.6,6.8,9.2
+race  / jogging,4.8,5.8,6.4
+race training,7.2,10.4,12.0
+workout,4.4,4.8,6.0
+elliptical machine,5.8,6.4,7.2
+horseback riding ,3.2,4.8,5.6
+mountain climbing ,8.8,8.8,8.8
+sidestep,4.8,5.6,6.4
+fencing ,4.8,5.6,6.4
+football ,7.2,7.2,7.2
+golf ,2.8,3.2,4.4
+team handball ,6.4,7.2,8.8
+martial arts,6.4,7.2,8.8
+walking,2.4,3.6,4.8
+swimming ,4.8,6.4,8.0
+ice skating,4.4,6.0,7.2
+roller blade,5.6,7.2,9.6
+pilates ,2.4,3.2,4.0
+roller board / ice board,4.0,4.0,4.0
+racquetball ,5.6,7.2,8.8
+mountain trip,3.6,5.2,7.2
+snowshoe ,5.6,6.4,7.2
+alpine skiing ,4.0,4.8,6.4
+cross-country ski,5.6,7.2,8.8
+soccer ,5.6,7.2,8.0
+indoor cycling,5.6,7.2,8.8
+squash ,5.6,7.2,8.8
+tai chi ,3.2,3.2,3.2
+tennis ,4.0,5.6,8.0
+table tennis,3.2,4.8,5.6
+road cycling ,3.2,6.4,9.6
+stationary cycling ,2.4,4.4,8.8
+pedometre ,0.0075,0.00857143,0.01
+belly dance ,4.4,4.4,4.4
+flamingo,4.4,4.4,4.4
+social dance,4.8,4.8,4.8
+jazz dance,4.8,4.8,4.8
+danse classique ,4.8,4.8,4.8
+hip-hop dance,6.0,6.0,6.0
+tap dance ,6.0,6.0,6.0
+gymnastics and cheerleading ,3.0,3.5,4.0
+boxing: punching bag ,3.0,3.5,3.7
+boxing: match,5.0,5.5,6.0
+boxing: training ,8.0,8.5,9.0
+curling ,2.0,2.0,2.0
+bowling ,1.5,1.5,1.5
+raquetball ,3.5,3.5,5.0
+squash ,4.0,5.0,6.0
+kin-ball ,2.5,3.0,3.5
+ball hockey ,3.5,4.0,4.5
+flag football ,3.5,4.0,4.5
+trampolining ,2.0,2.5,2.5
+outdoor play,1.4,2.0,2.5
+playground,1.4,2.0,2.5
+shoveling,3.0,3.5,4.5
+gardening,1.8,2.3,3.0
+sailboard,1.5,2.0,2.5
+Smoking no. 1,15.0,0.0,0.0
+Smoking no. 2,-15.0,0.0,0.0
+Smoking no. 3,-30.0,0.0,0.0
+Diet no. 1,-15.0,0.0,0.0
+Diet no. 2,-15.0,0.0,0.0
+Diet no. 3,-15.0,0.0,0.0
+Alcohol,-15.0,0.0,0.0
+bonus,725.0,725.0,725.0
+marche nordique,4.8,7.2,9.6
+arbre en arbre,8.8,8.8,8.8
+parkour,7.2,10.4,12.0
+bonus,750.0,750.0,750.0
+break dancing,6.0,6.0,6.0
+popping,6.0,6.0,6.0
+ringuette,7.2,7.2,7.2
+ringette,7.2,7.2,7.2
+hot yoga,2.4,3.2,4.0
+baseball,2.0,2.0,2.0
+bateau dragon,5.1,5.1,8.3
+intercrosse,3.5,4.0,4.5
+Tabac,30.0,0.0,0.0
+Sommeil,30.0,0.0,0.0
+Stress,30.0,0.0,0.0
+Alcool et drogues,30.0,0.0,0.0
+tracking,3.6,5.2,7.2
+randonnée pédestre,3.6,5.2,7.2

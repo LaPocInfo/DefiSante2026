@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Défi Santé 2026 — Connexion</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-bg"></div>
+
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="auth-logo-mark">🏃</div>
+      <h1>Défi Santé 2026</h1>
+      <p>Bienvenue ! Connectez-vous ou créez un compte.</p>
+    </div>
+
+    <!-- Onglets Connexion / Inscription -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-connexion" onclick="switchTab('connexion')">Connexion</button>
+      <button class="auth-tab" id="tab-inscription" onclick="switchTab('inscription')">Inscription</button>
+    </div>
+
+    <!-- Alertes -->
+    <div id="alert-zone"></div>
+
+    <!-- ===== FORMULAIRE CONNEXION ===== -->
+    <div id="form-connexion">
+      <div class="form-group">
+        <label class="form-label" for="login-courriel">Courriel</label>
+        <input class="form-control" type="email" id="login-courriel" placeholder="vous@exemple.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-mdp">Mot de passe</label>
+        <input class="form-control" type="password" id="login-mdp" placeholder="••••••••" />
+      </div>
+      <button class="btn btn-green btn-block btn-lg" id="btn-connexion" onclick="doConnexion()">
+        Se connecter
+      </button>
+    </div>
+
+    <!-- ===== FORMULAIRE INSCRIPTION ===== -->
+    <div id="form-inscription" class="hidden">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="reg-prenom">Prénom</label>
+          <input class="form-control" type="text" id="reg-prenom" placeholder="Jean" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-nom">Nom</label>
+          <input class="form-control" type="text" id="reg-nom" placeholder="Tremblay" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-courriel">Courriel</label>
+        <input class="form-control" type="email" id="reg-courriel" placeholder="vous@exemple.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-mdp">Mot de passe</label>
+        <input class="form-control" type="password" id="reg-mdp" placeholder="••••••••" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-sexe">Sexe</label>
+        <select class="form-control" id="reg-sexe">
+          <option value="">— Choisir —</option>
+          <option value="homme">Homme</option>
+          <option value="femme">Femme</option>
+          <option value="mixte">Mixte</option>
+        </select>
+      </div>
+      <button class="btn btn-green btn-block btn-lg" id="btn-inscription" onclick="doInscription()">
+        Créer mon compte
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  // Redirige si déjà connecté
+  if (Auth.isLoggedIn()) {
+    window.location.href = "/pages/tableau-de-bord.html";
+  }
+
+  function switchTab(tab) {
+    document.getElementById("alert-zone").innerHTML = "";
+    document.getElementById("tab-connexion").classList.toggle("active", tab === "connexion");
+    document.getElementById("tab-inscription").classList.toggle("active", tab === "inscription");
+    document.getElementById("form-connexion").classList.toggle("hidden", tab !== "connexion");
+    document.getElementById("form-inscription").classList.toggle("hidden", tab !== "inscription");
+  }
+
+  async function doConnexion() {
+    const courriel = document.getElementById("login-courriel").value.trim();
+    const mot_de_passe = document.getElementById("login-mdp").value;
+    const btn = document.getElementById("btn-connexion");
+
+    if (!courriel || !mot_de_passe) {
+      showAlert("#alert-zone", "Veuillez remplir tous les champs.", "error");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const data = await POST("/auth/connexion", { courriel, mot_de_passe });
+      Auth.setSession(data.token, data.participant);
+      window.location.href = "/pages/tableau-de-bord.html";
+    } catch (err) {
+      showAlert("#alert-zone", err.message, "error");
+      btn.disabled = false;
+      btn.innerHTML = "Se connecter";
+    }
+  }
+
+  async function doInscription() {
+    const prenom = document.getElementById("reg-prenom").value.trim();
+    const nom = document.getElementById("reg-nom").value.trim();
+    const courriel = document.getElementById("reg-courriel").value.trim();
+    const mot_de_passe = document.getElementById("reg-mdp").value;
+    const sexe = document.getElementById("reg-sexe").value;
+    const btn = document.getElementById("btn-inscription");
+
+    if (!prenom || !nom || !courriel || !mot_de_passe || !sexe) {
+      showAlert("#alert-zone", "Veuillez remplir tous les champs.", "error");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const data = await POST("/auth/inscription", { prenom, nom, courriel, mot_de_passe, sexe });
+      Auth.setSession(data.token, data.participant);
+      window.location.href = "/pages/tableau-de-bord.html";
+    } catch (err) {
+      showAlert("#alert-zone", err.message, "error");
+      btn.disabled = false;
+      btn.innerHTML = "Créer mon compte";
+    }
+  }
+
+  // Soumettre avec Enter
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    const tabActif = document.getElementById("form-connexion").classList.contains("hidden")
+      ? "inscription" : "connexion";
+    if (tabActif === "connexion") doConnexion();
+    else doInscription();
+  });
+</script>
+
+</body>
+</html>
