@@ -60,7 +60,7 @@ def create_app():
     # ─────────────────────────────────────────────────────────────────────────
 
     from api.routes.auth import auth_bp
-    # from api.routes.participants import participants_bp   # TODO: à implémenter
+    from api.routes.participants import participants_bp
     # from api.routes.equipes import equipes_bp             # TODO: à implémenter
     from api.routes.activites import activites_bp
     # from api.routes.defis import defis_bp                 # TODO: à implémenter
@@ -68,7 +68,7 @@ def create_app():
     from api.routes.stats import stats_bp
 
     app.register_blueprint(auth_bp,          url_prefix="/api/auth")
-    # app.register_blueprint(participants_bp,   url_prefix="/api/participants")
+    app.register_blueprint(participants_bp,   url_prefix="/api/participants")
     # app.register_blueprint(equipes_bp,        url_prefix="/api/equipes")
     app.register_blueprint(activites_bp,      url_prefix="/api/activites")
     # app.register_blueprint(defis_bp,          url_prefix="/api/defis")
