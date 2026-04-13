@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Défi Santé 2026 — Tableau de bord</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    /* ── Bannière de bienvenue ── */
+    .welcome {
+      background: linear-gradient(135deg, rgba(61,220,132,.09) 0%, rgba(77,159,255,.05) 100%);
+      border: 1px solid rgba(61,220,132,.18);
+      border-radius: var(--radius);
+      padding: 1.75rem 2rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .welcome h2 {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+    .welcome p { color: var(--text2); font-size: .9rem; margin-top: .3rem; }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-right: .4rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+    /* ── Grille stats ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s, transform .2s var(--ease);
+    }
+    .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .stat-card.green::before  { background: linear-gradient(90deg, var(--accent), transparent); }
+    .stat-card.blue::before   { background: linear-gradient(90deg, var(--blue), transparent); }
+    .stat-card.orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
+    .stat-card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+    .stat-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text3);
+      margin-bottom: .5rem;
+    }
+    .stat-value {
+      font-family: var(--font-head);
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    /* ── Grille principale ── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.5rem;
+    }
+    @media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .card-title {
+      font-family: var(--font-head);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Liste activités populaires ── */
+    .act-row {
+      display: flex;
+      align-items: center;
+      gap: .875rem;
+      padding: .65rem .75rem;
+      border-radius: var(--radius-sm);
+      transition: background .12s;
+    }
+    .act-row:hover { background: var(--bg3); }
+    .act-rank {
+      width: 28px;
+      text-align: center;
+      font-family: var(--font-head);
+      font-size: .85rem;
+      font-weight: 800;
+      color: var(--text3);
+      flex-shrink: 0;
+    }
+    .act-rank.gold   { color: var(--gold); }
+    .act-rank.silver { color: #9ba8bb; }
+    .act-rank.bronze { color: #cd8a4a; }
+    .act-name { flex: 1; font-size: .875rem; font-weight: 600; color: var(--text); }
+    .act-pts {
+      font-family: var(--font-head);
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(61,220,132,.1);
+      border: 1px solid rgba(61,220,132,.18);
+      padding: .15rem .55rem;
+      border-radius: 99px;
+    }
+
+    /* ── Profil utilisateur ── */
+    .profile-bloc {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .avatar-big {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0a1a10;
+      flex-shrink: 0;
+    }
+    .profile-info { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .profile-name { font-family: var(--font-head); font-size: 1.1rem; font-weight: 800; }
+    .profile-role {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .65rem;
+      border-radius: 99px;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-top: .25rem;
+    }
+    .role-participant  { background: rgba(77,159,255,.1); color: var(--blue); border: 1px solid rgba(77,159,255,.2); }
+    .role-gestionnaire { background: rgba(61,220,132,.1); color: var(--accent); border: 1px solid rgba(61,220,132,.2); }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: .5rem .625rem;
+      background: var(--bg3);
+      border-radius: var(--radius-xs);
+      margin-bottom: .4rem;
+      font-size: .85rem;
+    }
+    .info-row span:first-child { color: var(--text2); }
+    .info-row span:last-child  { font-weight: 600; color: var(--text); }
+
+    /* ── Spinner / empty ── */
+    .loading-center { display: flex; justify-content: center; align-items: center; padding: 2.5rem; }
+    .spinner {
+      display: inline-block;
+      width: 22px; height: 22px;
+      border: 2px solid var(--bg4);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty { text-align: center; padding: 2.5rem; color: var(--text3); font-size: .875rem; }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/pages/tableau-de-bord.html" class="nav-logo">
+      <span class="logo-dot"></span> Défi Santé 2026
+    </a>
+    <div class="nav-links">
+      <a href="/pages/tableau-de-bord.html" class="nav-link active">Tableau de bord</a>
+    </div>
+    <div class="nav-user"></div>
+  </div>
+</nav>
+
+<!-- ── CONTENU ── -->
+<div class="page">
+
+  <!-- Bannière de bienvenue -->
+  <div class="welcome">
+    <div>
+      <h2>Bonjour, <span id="user-prenom" style="color:var(--accent)">...</span> 👋</h2>
+      <p>Bienvenue sur votre tableau de bord Défi Santé 2026.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--text2)">
+      <span class="pulse-dot"></span> Session active
+    </div>
+  </div>
+
+  <!-- Stats globales -->
+  <div class="stat-grid">
+    <div class="stat-card green">
+      <div class="stat-label">Activités disponibles</div>
+      <div class="stat-value" id="s-activites">—</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Participants inscrits</div>
+      <div class="stat-value" id="s-participants">—</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">Points générés</div>
+      <div class="stat-value" id="s-points">—</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Heures d'activité</div>
+      <div class="stat-value" id="s-heures">—</div>
+    </div>
+  </div>
+
+  <!-- Grille principale -->
+  <div class="dash-grid">
+
+    <!-- Activités les plus populaires -->
+    <div class="card">
+      <div class="card-title">Activités les plus pratiquées</div>
+      <div id="act-list">
+        <div class="loading-center"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Profil + infos -->
+    <div class="profile-bloc">
+      <div class="card">
+        <div class="card-title">Mon profil</div>
+        <div id="profil-content">
+          <div class="loading-center"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Actions rapides</div>
+        <div style="display:flex;flex-direction:column;gap:.625rem">
+          <button class="btn btn-green btn-block" onclick="logout()" style="justify-content:center">
+            Déconnexion
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  if (!Auth.requireAuth()) throw 0;
+
+  const user = Auth.getUser();
+
+  async function load() {
+    // Prénom dans la bannière
+    document.getElementById("user-prenom").textContent = user.prenom;
+
+    // ── Profil ──
+    try {
+      const me = await GET("/auth/moi");
+      const initiales = (me.prenom[0] + me.nom[0]).toUpperCase();
+      document.getElementById("profil-content").innerHTML = `
+        <div class="profile-info">
+          <div class="avatar-big">${initiales}</div>
+          <div>
+            <div class="profile-name">${me.prenom} ${me.nom}</div>
+            <div class="profile-role ${me.role === 'gestionnaire' ? 'role-gestionnaire' : 'role-participant'}">
+              ${me.role}
+            </div>
+          </div>
+        </div>
+        <div class="info-row"><span>Courriel</span><span>${me.courriel}</span></div>
+        <div class="info-row"><span>Sexe</span><span>${{homme:'Homme',femme:'Femme',mixte:'Mixte'}[me.sexe]||me.sexe}</span></div>
+        <div class="info-row"><span>Inscrit le</span><span>${me.date_inscription ? new Date(me.date_inscription+'T00:00:00').toLocaleDateString('fr-CA',{day:'numeric',month:'long',year:'numeric'}) : '—'}</span></div>
+      `;
+    } catch {
+      document.getElementById("profil-content").innerHTML =
+        '<div class="empty">Impossible de charger le profil.</div>';
+    }
+
+    // ── Stats globales (resume) ──
+    try {
+      const resume = await GET("/stats/resume");
+      document.getElementById("s-participants").textContent = resume.nb_participants;
+      document.getElementById("s-points").textContent      = resume.total_points.toFixed(1);
+      document.getElementById("s-heures").textContent      = resume.heures_activite + "h";
+    } catch {
+      ["s-participants","s-points","s-heures"].forEach(id =>
+        document.getElementById(id).textContent = "—"
+      );
+    }
+
+    // ── Nombre d'activités disponibles ──
+    try {
+      const acts = await GET("/activites/");
+      document.getElementById("s-activites").textContent = acts.length;
+    } catch {
+      document.getElementById("s-activites").textContent = "—";
+    }
+
+    // ── Top activités populaires ──
+    try {
+      const pop = await GET("/stats/activites/populaires");
+      const rankClass = (i) => i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
+      const rankLabel = (i) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i+1}`;
+
+      if (!pop.length) {
+        document.getElementById("act-list").innerHTML =
+          '<div class="empty">Aucune activité pratiquée pour l\'instant.</div>';
+        return;
+      }
+
+      document.getElementById("act-list").innerHTML = pop.slice(0, 10).map((a, i) => `
+        <div class="act-row">
+          <div class="act-rank ${rankClass(i)}">${rankLabel(i)}</div>
+          <div class="act-name">${a.nom}</div>
+          <div style="font-size:.78rem;color:var(--text3);margin-right:.5rem">${a.nb_saisies} saisie(s)</div>
+          <div class="act-pts">${a.total_points.toFixed(1)} pts</div>
+        </div>
+      `).join("");
+    } catch {
+      document.getElementById("act-list").innerHTML =
+        '<div class="empty">Impossible de charger les activités.</div>';
+    }
+  }
+
+  load();
+</script>
+
+</body>
+</html>
