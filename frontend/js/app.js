@@ -98,10 +98,15 @@ function showLoading(container) {
 }
 
 function emptyState(icon, title, subtitle = "") {
+  let subtitleHTML = "";
+  if (subtitle) {
+    subtitleHTML = "<p>" + subtitle + "</p>";
+  }
+
   return `<div class="empty-state">
     <div class="empty-state-icon">${icon}</div>
     <div class="empty-state-title">${title}</div>
-    ${subtitle ? `<p>${subtitle}</p>` : ""}
+    ${subtitleHTML}
   </div>`;
 }
 
