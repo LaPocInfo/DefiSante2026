@@ -57,17 +57,8 @@ cp .env.example .env
 docker-compose up --build
 ```
 
-Services démarrés :
-| Service | URL |
-|---------|-----|
-| **API Flask** | http://localhost:5000 |
-| **Frontend** | http://localhost:5000/frontend/index.html *(ou serveur statique)* |
-| **PostgreSQL** | localhost:5433 |
-| **pgAdmin** (dev) | http://localhost:5050 |
 
-> Pour pgAdmin : `docker-compose --profile dev up --build`
-
-### 3. Compte administrateur par défaut
+### 2. Compte administrateur par défaut
 
 Créé automatiquement au premier démarrage :
 - **Courriel** : `admin@defisante.local`
@@ -167,31 +158,4 @@ Les points de base varient selon :
 
 ---
 
-## 🛠️ Développement
 
-```bash
-# Sans Docker (avec PostgreSQL local)
-pip install -r requirements.txt
-export DATABASE_URL=postgresql://user:pass@localhost:5432/defisante
-python run.py
-
-# Migrations de base de données
-flask db init
-flask db migrate -m "description"
-flask db upgrade
-```
-
----
-
-## 📝 Modèle de base de données
-
-```
-Participant ←── SaisieActivite ──→ Activite
-     │                                
-     ↓                                
-  Equipe ←── ParticipationDefi ──→ Defi
-```
-
----
-
-*© 2026 Nicola Demers — Cégep La Pocatière*
