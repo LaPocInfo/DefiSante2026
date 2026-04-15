@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Santé — Équipes</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .eq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem}
+    .eq-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s,transform .2s var(--ease)}
+    .eq-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+    .eq-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+    .eq-head-title{font-family:var(--font-head);font-size:1rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+    .eq-head-sub{font-size:.78rem;color:var(--text3);margin-top:.2rem}
+    .eq-body{padding:1.25rem 1.5rem}
+    .m-row{display:flex;align-items:center;gap:.625rem;padding:.45rem 0;border-bottom:1px solid var(--border)}
+    .m-row:last-child{border-bottom:none}
+    .m-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
+    .places{display:flex;gap:4px;margin-top:.875rem;align-items:center}
+    .place-dot{width:8px;height:8px;border-radius:50%;background:var(--bg4)}
+    .place-dot.taken{background:var(--accent)}
+  </style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a href="/pages/tableau-de-bord.html" class="nav-logo"><span class="logo-dot"></span> Défi Santé</a>
+  <div class="nav-links">
+    <a href="/pages/tableau-de-bord.html" class="nav-link">Tableau de bord</a>
+    <a href="/pages/saisie.html" class="nav-link">Saisir activité</a>
+    <a href="/pages/mes-activites.html" class="nav-link">Mes activités</a>
+    <a href="/pages/classement.html" class="nav-link">Classement</a>
+    <a href="/pages/equipes.html" class="nav-link active">Équipes</a>
+    <a href="/pages/gestion.html" class="nav-link nav-gestionnaire">Gestion</a>
+  </div>
+  <div class="nav-user"></div>
+</div></nav>
+<div class="page">
+  <div class="page-header">
+    <div><div class="page-title">Équipes</div><div class="page-subtitle">Vue d'ensemble des équipes</div></div>
+    <button class="btn btn-green nav-gestionnaire" onclick="openModal('m-eq')">+ Nouvelle équipe</button>
+  </div>
+  <div id="alert-eq"></div>
+  <div id="eq-grid" class="eq-grid"><div style="grid-column:1/-1"><div class="loading-center"><div class="spinner"></div></div></div></div>
+</div>
+
+<div class="modal-backdrop hidden" id="m-eq">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="eq-modal-title">Nouvelle équipe</div><button class="modal-close">✕</button></div>
+    <div class="modal-body">
+      <div id="alert-m-eq"></div>
+      <input type="hidden" id="eq-id">
+      <div class="form-group"><label class="form-label">Nom de l'équipe</label><input type="text" id="eq-nom" class="form-control" placeholder="Les Champions"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea id="eq-desc" class="form-control" rows="2" placeholder="Optionnel..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('m-eq')">Annuler</button>
+      <button class="btn btn-green" onclick="saveEq()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+if(!Auth.requireAuth())throw 0;
+const user=Auth.getUser();
+async function load(){
+  try{
+    const eqs=await GET("/equipes/");
+    if(!eqs.length){document.getElementById("eq-grid").innerHTML=emptyState("👥","Aucune équipe","Un gestionnaire peut créer des équipes.");return;}
+    document.getElementById("eq-grid").innerHTML=eqs.map(e=>{
+      const mb=e.membres||[],est=Auth.isGestionnaire(),isMe=mb.some(m=>m.id_participant===user.id_participant);
+      return`<div class="eq-card">
+        <div class="eq-head">
+          <div>
+            <div class="eq-head-title">${e.nom}${isMe?' <span class="badge badge-green">Mon équipe</span>':''}</div>
+            <div class="eq-head-sub">${mb.length}/4 membres</div>
+          </div>
+          ${est?`<div style="display:flex;gap:.4rem">
+            <button class="btn btn-ghost btn-sm" onclick='editEq(${e.id_equipe},"${e.nom.replace(/"/g,"&quot;")}","${(e.description||"").replace(/"/g,"&quot;")}")'>✏️</button>
+          </div>`:""}
+        </div>
+        <div class="eq-body">
+          ${mb.length?mb.map(m=>`<div class="m-row">
+            <div class="m-av" style="background:${m.sexe==="femme"?"#8b1a5a":m.sexe==="homme"?"#1a3d7a":"var(--bg4)");color:var(--accent)}}">${m.prenom[0]}${m.nom[0]}</div>
+            <span style="font-size:.875rem;font-weight:500">${m.prenom} ${m.nom}</span>
+            ${m.id_participant===user.id_participant?'<span class="badge badge-green" style="margin-left:auto">Moi</span>':""}
+            ${est?`<button class="btn btn-red btn-sm" style="margin-left:auto;padding:.2rem .5rem" onclick="retirer(${e.id_equipe},${m.id_participant},'${m.prenom}')">✕</button>`:""}
+          </div>`).join(""):`<div style="font-size:.82rem;color:var(--text3);padding:.5rem 0">Aucun membre</div>`}
+          <div class="places">
+            ${Array.from({length:4},(_,i)=>`<div class="place-dot ${i<mb.length?"taken":""}"></div>`).join("")}
+            <span style="font-size:.72rem;color:var(--text3);margin-left:.5rem">${4-mb.length>0?`${4-mb.length} place(s) libre(s)`:"Équipe complète"}</span>
+          </div>
+          ${est&&mb.length<4?`<div style="margin-top:.875rem"><button class="btn btn-ghost btn-sm btn-block" onclick="ajouterM(${e.id_equipe},'${e.nom.replace(/'/g,"\\'")}')">+ Ajouter un membre</button></div>`:""}
+        </div>
+      </div>`;}).join("");
+  }catch{document.getElementById("eq-grid").innerHTML=emptyState("⚠️","Erreur de chargement");}
+}
+function editEq(id,nom,desc){
+  document.getElementById("eq-id").value=id;
+  document.getElementById("eq-nom").value=nom;
+  document.getElementById("eq-desc").value=desc;
+  document.getElementById("eq-modal-title").textContent="Modifier l'équipe";
+  openModal("m-eq");
+}
+async function saveEq(){
+  const id=document.getElementById("eq-id").value;
+  const nom=document.getElementById("eq-nom").value.trim();
+  const desc=document.getElementById("eq-desc").value.trim();
+  if(!nom){showAlert("#alert-m-eq","Le nom est requis.");return;}
+  try{
+    if(id)await PUT(`/equipes/${id}`,{nom,description:desc});
+    else await POST("/equipes/",{nom,description:desc});
+    closeModal("m-eq");
+    document.getElementById("eq-id").value="";
+    document.getElementById("eq-nom").value="";
+    document.getElementById("eq-modal-title").textContent="Nouvelle équipe";
+    showAlert("#alert-eq",`Équipe ${id?"modifiée":"créée"}.`,"success");
+    await load();
+  }catch(e){showAlert("#alert-m-eq",e.message);}
+}
+async function retirer(eid,pid,prenom){
+  if(!confirm(`Retirer ${prenom} de l'équipe ?`))return;
+  try{await DELETE(`/equipes/${eid}/membres/${pid}`);showAlert("#alert-eq",`${prenom} retiré.`,"success");await load();}catch(e){showAlert("#alert-eq",e.message);}
+}
+async function ajouterM(eid,eNom){
+  try{
+    const parts=await GET("/participants/");
+    const dispo=parts.filter(p=>!p.id_equipe||p.id_equipe===eid);
+    if(!dispo.length){showAlert("#alert-eq","Aucun participant disponible.","info");return;}
+    const sel=prompt(`Ajouter à "${eNom}" :\n${dispo.map((p,i)=>`${i+1}. ${p.prenom} ${p.nom}`).join("\n")}\n\nEntrez le numéro :`);
+    if(!sel)return;
+    const idx=parseInt(sel)-1;
+    if(isNaN(idx)||idx<0||idx>=dispo.length){alert("Numéro invalide.");return;}
+    await POST(`/equipes/${eid}/membres`,{id_participant:dispo[idx].id_participant});
+    showAlert("#alert-eq",`${dispo[idx].prenom} ${dispo[idx].nom} ajouté.`,"success");
+    await load();
+  }catch(e){showAlert("#alert-eq",e.message);}
+}
+if(!Auth.isGestionnaire())document.querySelectorAll(".nav-gestionnaire").forEach(e=>e.remove());
+load();
+</script>
+</body>
+</html>
