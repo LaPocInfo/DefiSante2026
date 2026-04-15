@@ -19,6 +19,8 @@ entity Participant {
     prenom : varchar
     nom : varchar
     courriel : varchar
+    mot_de_passe: varchar
+    role : varchar
     sexe : varchar
     date_inscription : date
     id_equipe : int <<FK>>
@@ -39,6 +41,7 @@ entity SaisieActivite {
     --
     date_activite : date
     duree_minutes : int
+    intensite : varchar
     points_obtenus : decimal
     id_participant : int <<FK>>
     id_activite : int <<FK>>
@@ -56,6 +59,7 @@ entity ParticipationDefi {
     + id_participation : int <<PK>>
     --
     id_defi : int <<FK>>
+    id_equipe : int <<FK>>
     id_participant : int <<FK>>
 }
 
@@ -68,5 +72,6 @@ Participant ||--o{ SaisieActivite : enregistre
 Activite ||--o{ SaisieActivite : concerne
 Defi ||--o{ ParticipationDefi : comprend
 Participant ||--o{ ParticipationDefi : participe
+Equipe ||--o{ ParticipationDefi : participe
 
 @enduml
