@@ -94,4 +94,6 @@ http localhost:5000/api/activites/
 http POST localhost:5000/api/activites/ description=test id_activite=250 nom=Test points_femme=0 points_homme=0 points_mixte=0
 ```
 
-
+``` bash
+http DELETE localhost:5000/api/activites/2 
+```
