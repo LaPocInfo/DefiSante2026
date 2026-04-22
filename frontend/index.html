@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Santé</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .checkbox-group { display: flex; flex-direction: column; gap: 0.5rem; max-height: 160px; overflow-y: auto; padding: 0.5rem; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .checkbox-item { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.35rem 0.5rem; border-radius: var(--radius-xs); transition: background 0.15s; }
+    .checkbox-item:hover { background: var(--bg2); }
+    .checkbox-item input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+    .checkbox-item label { font-size: 0.85rem; color: var(--text2); cursor: pointer; flex: 1; }
+    .checkbox-item .defi-dates { font-size: 0.72rem; color: var(--text3); display: block; margin-top: 0.1rem; }
+    .badge-actif { display: inline-block; background: rgba(61,220,132,0.15); color: var(--accent); border-radius: 99px; padding: 0.05rem 0.45rem; font-size: 0.68rem; font-weight: 700; margin-left: 0.4rem; vertical-align: middle; }
+    .form-loading { color: var(--text3); font-size: 0.82rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; }
+  </style>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="auth-logo-mark">🏃</div>
+      <h1>Défi Santé</h1>
+      <p>Bougez, gagnez des points, dépassez-vous</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="connexion">Connexion</button>
+      <button class="auth-tab" data-tab="inscription">Inscription</button>
+    </div>
+
+    <div id="alert-auth"></div>
+
+    <!-- CONNEXION -->
+    <div id="tab-connexion">
+      <div class="form-group">
+        <label class="form-label">Courriel</label>
+        <input type="email" id="login-email" class="form-control" placeholder="votre@courriel.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" id="login-mdp" class="form-control" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-green btn-block btn-lg" onclick="doLogin()">Se connecter</button>
+      <p style="text-align:center;margin-top:1.25rem;font-size:0.78rem;color:var(--text3)">
+        Compte gestionnaire par défaut<br>
+        <span style="color:var(--text2);font-family:monospace">admin@defisante.local</span> /
+        <span style="color:var(--text2);font-family:monospace">Admin123!</span>
+      </p>
+    </div>
+
+    <!-- INSCRIPTION -->
+    <div id="tab-inscription" class="hidden">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input type="text" id="reg-prenom" class="form-control" placeholder="Jean">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input type="text" id="reg-nom" class="form-control" placeholder="Tremblay">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Courriel</label>
+        <input type="email" id="reg-email" class="form-control" placeholder="jean@exemple.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" id="reg-mdp" class="form-control" placeholder="Minimum 6 caractères">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sexe biologique</label>
+        <select id="reg-sexe" class="form-control">
+          <option value="">— Choisir —</option>
+          <option value="homme">Homme</option>
+          <option value="femme">Femme</option>
+          <option value="non-binaire">Non-binaire</option>
+          <option value="autre">Autre</option>
+        </select>
+        <div class="form-hint">Utilisé pour le calcul des points selon la pondération.</div>
+      </div>
+
+      <!-- DÉFIS DISPONIBLES -->
+      <div class="form-group">
+        <label class="form-label">Défis auxquels vous inscrire <span style="color:var(--text3);font-weight:400">(optionnel)</span></label>
+        <div id="reg-defis-list" class="checkbox-group">
+          <div class="form-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Chargement des défis…</div>
+        </div>
+      </div>
+
+      <!-- ÉQUIPE -->
+      <div class="form-group">
+        <label class="form-label">Rejoindre une équipe <span style="color:var(--text3);font-weight:400">(optionnel)</span></label>
+        <select id="reg-equipe" class="form-control">
+          <option value="">— Aucune équipe —</option>
+        </select>
+        <div class="form-hint" id="reg-equipe-hint">Chargement des équipes…</div>
+      </div>
+
+      <button class="btn btn-green btn-block btn-lg" onclick="doRegister()">Créer mon compte</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  if (Auth.isLoggedIn()) window.location.href = "/pages/tableau-de-bord.html";
+
+  const API_BASE_PUBLIC = "http://localhost:5000/api";
+
+  // Formateur de date local (sans JWT)
+  function fmtDateLocal(d) {
+    return new Date(d + "T00:00:00").toLocaleDateString("fr-CA", { day: "numeric", month: "short", year: "numeric" });
+  }
+
+  // Charger défis et équipes publiquement dès l'ouverture de l'onglet inscription
+  async function chargerOptionsInscription() {
+    // Défis
+    try {
+      const res = await fetch(`${API_BASE_PUBLIC}/auth/defis-publics`);
+      const defis = await res.json();
+      const container = document.getElementById("reg-defis-list");
+      if (!defis.length) {
+        container.innerHTML = '<div style="font-size:0.82rem;color:var(--text3);padding:0.5rem">Aucun défi disponible pour le moment.</div>';
+      } else {
+        container.innerHTML = defis.map(d => `
+          <label class="checkbox-item">
+            <input type="checkbox" name="reg-defi" value="${d.id_defi}">
+            <span>
+              <span>${d.nom}${d.actif ? '<span class="badge-actif">En cours</span>' : ''}</span>
+              <span class="defi-dates">${fmtDateLocal(d.date_debut)} → ${fmtDateLocal(d.date_fin)}</span>
+            </span>
+          </label>`).join("");
+      }
+    } catch {
+      document.getElementById("reg-defis-list").innerHTML = '<div style="font-size:0.82rem;color:var(--text3);padding:0.5rem">Impossible de charger les défis.</div>';
+    }
+
+    // Équipes
+    try {
+      const res = await fetch(`${API_BASE_PUBLIC}/auth/equipes-publiques`);
+      const equipes = await res.json();
+      const sel = document.getElementById("reg-equipe");
+      const hint = document.getElementById("reg-equipe-hint");
+      if (!equipes.length) {
+        hint.textContent = "Aucune équipe disponible pour le moment.";
+      } else {
+        equipes.forEach(e => {
+          const full = e.nb_membres >= 4;
+          const opt = document.createElement("option");
+          opt.value = e.id_equipe;
+          opt.textContent = `${e.nom} (${e.nb_membres}/4 membre${e.nb_membres !== 1 ? 's' : ''})`;
+          if (full) { opt.disabled = true; opt.textContent += " — complète"; }
+          sel.appendChild(opt);
+        });
+        hint.textContent = "Vous pourrez être affecté·e à une équipe par un gestionnaire.";
+      }
+    } catch {
+      document.getElementById("reg-equipe-hint").textContent = "Impossible de charger les équipes.";
+    }
+  }
+
+  document.querySelectorAll(".auth-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      const w = tab.dataset.tab;
+      document.getElementById("tab-connexion").classList.toggle("hidden", w !== "connexion");
+      document.getElementById("tab-inscription").classList.toggle("hidden", w !== "inscription");
+      document.getElementById("alert-auth").innerHTML = "";
+      if (w === "inscription") chargerOptionsInscription();
+    });
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    const active = document.querySelector(".auth-tab.active")?.dataset.tab;
+    if (active === "connexion") doLogin(); else doRegister();
+  });
+
+  async function doLogin() {
+    const email = document.getElementById("login-email").value.trim();
+    const mdp   = document.getElementById("login-mdp").value;
+    if (!email || !mdp) { showAlert("#alert-auth", "Veuillez remplir tous les champs."); return; }
+    try {
+      const data = await POST("/auth/connexion", { courriel: email, mot_de_passe: mdp });
+      Auth.setSession(data.token, data.participant);
+      window.location.href = "/pages/tableau-de-bord.html";
+    } catch (e) { showAlert("#alert-auth", e.message); }
+  }
+
+  async function doRegister() {
+    const prenom = document.getElementById("reg-prenom").value.trim();
+    const nom    = document.getElementById("reg-nom").value.trim();
+    const email  = document.getElementById("reg-email").value.trim();
+    const mdp    = document.getElementById("reg-mdp").value;
+    const sexe   = document.getElementById("reg-sexe").value;
+    if (!prenom || !nom || !email || !mdp || !sexe) { showAlert("#alert-auth", "Veuillez remplir tous les champs obligatoires."); return; }
+    if (mdp.length < 6) { showAlert("#alert-auth", "Mot de passe trop court (min 6 caractères)."); return; }
+
+    // Récupérer les défis cochés
+    const id_defis = [...document.querySelectorAll('input[name="reg-defi"]:checked')].map(i => parseInt(i.value));
+
+    // Récupérer l'équipe sélectionnée
+    const id_equipe = parseInt(document.getElementById("reg-equipe").value) || null;
+
+    try {
+      const data = await POST("/auth/inscription", { prenom, nom, courriel: email, mot_de_passe: mdp, sexe, id_defis, id_equipe });
+      Auth.setSession(data.token, data.participant);
+      window.location.href = "/pages/tableau-de-bord.html";
+    } catch (e) { showAlert("#alert-auth", e.message); }
+  }
+</script>
+</body>
+</html>

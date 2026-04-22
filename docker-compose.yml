@@ -36,6 +36,15 @@ services:
       db:
         condition: service_healthy
 
+  adminer:
+    image: adminer
+    container_name: defisante_adminer
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    depends_on:
+      - db
+
 volumes:
   postgres_data:
     driver: local

@@ -45,7 +45,8 @@ async function api(method, endpoint, body = null) {
     return;
   }
 
-
+  // Vérifier que la réponse est bien du JSON avant d'appeler .json()
+  // (Flask peut retourner du HTML pour certaines erreurs)
   const contentType = res.headers.get("content-type") || "";
   if (!contentType.includes("application/json")) {
     throw new Error(`Erreur serveur (${res.status}) — réponse inattendue du serveur.`);
@@ -61,7 +62,7 @@ const POST = (ep, body) => api("POST", ep, body);
 const PUT = (ep, body) => api("PUT", ep, body);
 const DELETE = (ep) => api("DELETE", ep);
 
-
+// ===== DOM HELPERS =====
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -97,10 +98,15 @@ function showLoading(container) {
 }
 
 function emptyState(icon, title, subtitle = "") {
+  let subtitleHTML = "";
+  if (subtitle) {
+    subtitleHTML = "<p>" + subtitle + "</p>";
+  }
+
   return `<div class="empty-state">
     <div class="empty-state-icon">${icon}</div>
     <div class="empty-state-title">${title}</div>
-    ${subtitle ? `<p>${subtitle}</p>` : ""}
+    ${subtitleHTML}
   </div>`;
 }
 
@@ -122,14 +128,14 @@ function initNav() {
     `;
   }
 
-
+  // Highlight active link
   const currentPage = window.location.pathname.split("/").pop();
   $$(".nav-link").forEach(link => {
     const href = link.getAttribute("href")?.split("/").pop();
     if (href === currentPage) link.classList.add("active");
   });
 
-
+  // Hide gestionnaire links for participants
   if (!Auth.isGestionnaire()) {
     $$(".nav-gestionnaire").forEach(l => l.remove());
   }

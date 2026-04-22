@@ -10,8 +10,8 @@ class Participant(db.Model):
     nom = db.Column(db.String(100), nullable=False)
     courriel = db.Column(db.String(200), nullable=False, unique=True)
     mot_de_passe = db.Column(db.String(200), nullable=False)
-    sexe = db.Column(db.String(10), nullable=False)  
-    role = db.Column(db.String(20), nullable=False, default="participant")  
+    sexe = db.Column(db.String(10), nullable=False)  # homme, femme, mixte
+    role = db.Column(db.String(20), nullable=False, default="participant")  # participant, gestionnaire
     date_inscription = db.Column(db.Date, nullable=False, default=date.today)
     id_equipe = db.Column(db.Integer, db.ForeignKey("equipe.id_equipe"), nullable=True)
 
@@ -128,7 +128,7 @@ class SaisieActivite(db.Model):
     id_saisie = db.Column(db.Integer, primary_key=True)
     date_activite = db.Column(db.Date, nullable=False, default=date.today)
     duree_minutes = db.Column(db.Integer, nullable=False)
-    intensite = db.Column(db.String(20), nullable=False, default="moyenne")  
+    intensite = db.Column(db.String(20), nullable=False, default="moyenne")  # faible, moyenne, intense
     points_obtenus = db.Column(db.Numeric(8, 2), nullable=False, default=0)
     id_participant = db.Column(db.Integer, db.ForeignKey("participant.id_participant"), nullable=False)
     id_activite = db.Column(db.Integer, db.ForeignKey("activite.id_activite"), nullable=False)
