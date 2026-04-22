@@ -157,5 +157,30 @@ Les points de base varient selon :
 - Le **sexe** du participant (points Homme / Femme / Mixte)
 
 ---
+TEST
 
+$token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+
+# 1. Connexion
+$resp = Invoke-RestMethod -Uri "http://localhost:5000/api/auth/connexion" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"courriel":"admin@defisante.local","mot_de_passe":"Admin123!"}'
+$token = $resp.token
+
+# 2. Défi actif
+Invoke-RestMethod -Uri "http://localhost:5000/api/defis/actif" `
+  -Headers @{ Authorization = "Bearer $token" }
+
+# 3. Classement (défi 1)
+Invoke-RestMethod -Uri "http://localhost:5000/api/stats/classement/participants?id_defi=1" `
+  -Headers @{ Authorization = "Bearer $token" }
+
+# 4. Mes saisies
+Invoke-RestMethod -Uri "http://localhost:5000/api/saisies/" `
+  -Headers @{ Authorization = "Bearer $token" }
+
+# 5. Mes défis
+Invoke-RestMethod -Uri "http://localhost:5000/api/auth/moi/defis" `
+  -Headers @{ Authorization = "Bearer $token" }
 
