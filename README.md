@@ -1,99 +1,186 @@
-# Défi Santé
+# 🏃 Défi Santé
 
-## Présentation (Buts et objectifs)
+Application web de gestion de défi sportif communautaire. Développée dans le cadre d'un stage en Techniques de l'informatique au Cégep La Pocatière.
 
-Le projet Défi santé vise à encourager les membres d'une communauté (une école, une entreprise, un groupe quelconque) à développer et à maintenir de saines habitudes de vie, notamment par la  pratique de l’activité physique. Le projet fait également la promotion d’une saine alimentation et encourage les gens à adopter un bon équilibre de vie.
+---
 
-Le projet se présente sous forme d'un **défi compétitif et amical** à réaliser en communauté pendant une période fixée de quelques semaines (10 par exemple).   Des équipes de 1 à 4 personnes sont formées.
+## 🏗️ Architecture
 
-Les équipes s'engagent à accumuler le plus de points "Défi Santé" possibles à travers les activités physiques disponibles chaque semaine.   Une liste précise des activités physiques est disponible pour le défi.  Chaque activité physique permet d'accumuler un certain nombre de *points* "Défi santé".  Dépendant du type d'activité, de la période de l'activité (nombres de minutes) et de l'intensité (faible, moyenne ou intense), le nombre de points gagnés peut varier.  Cela est déterminé par un tableau de pondération (voir plus bas).
-
-Le nombre de points de chaque membre d'une équipe est additionné chaque semaine pour fournir le pointage de l'équipe.  Le but des équipes est évidemment d'accumuler le plus de points "Défi santé" pour la période du défi.
-
-A la fin de la période du défi, l'équipe gagnante (celle qui a accumulé le plus de points) est déterminé.
-
-### Liste des activités physiques avec pondération
-
-Voici un exemple de la pondération des activités autorisées pour le défi.
-
-| Activité            | Points Homme | Points Femme | Points Mixte |
-| ------------------- | ------------ | ------------ | ------------ |
-| badminton           | 3.6          | 6.4          | 8            |
-| course / jogging    | 4.8          | 5.8          | 6.4          |
-| danse aérobie       | 4.4          | 4.8          | 6            |
-| elliptique appareil | 5.8          | 6.4          | 7.2          |
-| escaliers           | 4.8          | 5.6          | 6.4          |
-| golf                | 2.8          | 3.2          | 4.4          |
-| hockey              | 7.2          | 7.2          | 7.2          |
-| arts martiaux       | 6.4          | 7.2          | 8.8          |
-| marche              | 2.4          | 3.6          | 4.8          |
-| zumba               | 4.4          | 4.8          | 6            |
-| ...                 | ...          | ...          | ...          |
-
-Un ensemble de 172 activités sont déjà répertoriés avec leur pondération déterminé par des professionnels de l'activité physique.  
-
-Les points mixtes (dernière colonne ci-haut) servent à standardiser la valeur d’une activité lorsqu’on ne veut pas distinguer le sexe.
-
-### Modèle possible de la base de données
-
-Pour fournir un aperçu de la complexité du projet, voici un modèle entité/relation de la base de données.  Le modèle pourrait être bonifié.
-
-![Modele_ER](./Modele_ER.png)
-
-<div style="page-break-after: always; break-after: page;"></div>
-
-### Statistiques des données cumulées
-
-Chaque semaine, il est intéressant de consulter des statistiques de l'avancement des participants et des équipes sous différents angles.  Voici d'autres données cumulées intéressantes à rendre disponibles tout au long du défi:
-
-* Total des points par participant
-* Total des minutes d’activité par participant
-* Nombre d’activités réalisées par participant
-* Total des points par équipe
-* Moyenne de points par membre d’une équipe
-* Total des points par type d’activité
-* Nombre total d’activités saisies
-* Répartition par sexe
-
-## Projet numérique (résultats attendus et contraintes)
-
-Pour soutenir le projet Défi Santé, il serait intéressant de développer des outils numériques permettant aux participants et aux organisateurs de sauvegarder les données de façon cohérente et rapide.
-
-Le projet numérique serait alors de créer 2 applications (à partir de zéro):
-
-1. Un API *Back-end* écrit en **Flask (Python)** complet permettant de gérer l'ensemble des données sauvegardés dans une base de données **PostgreSQL**;
-2. Un application Web ou mobile (*Front-end*) qui sera utilisé par les participants et les organisateurs.  Le choix de la technologie n'est pas fixée.  Il est suggéré d'utiliser *Flutter* mais une autre technologie est possible.
-
-L'API devra fournir un niveau de sécurité approprié.  Il faudra qu'une configuration OpenAPI / Swagger pour la spécification des routes et la documentation interactive. L'application *Front-end* devra être fonctionnel, convivial et robuste.  Des comptes participants et gestionnaires devront être intégrés et permettent des interfaces de gestion différentes.
-
-Pour pouvoir tester l'API, il faudra fournir un `docker-compose.yml` adaptée pour exécuter le code localement sur les postes de travail.  Si possible, il faudrait la même chose pour l'application *Front-end*.
-
-## Requêtes pour tester le développement
-
-### Concernant les activités
-
-Requêtes:
-
-* http://localhost:5000/api/activites/
-* http localhost:5000/api/activites/1
-* 
-
-### Commande curl
-
-``` 
-curl.exe -X POST http://localhost:5000/api/activites/ -H "Content-Type: application/json" -d "@body.json"
+```
+defisante/
+├── api/                        # Flask REST API (Python)
+│   ├── models/                 # Modèles SQLAlchemy (BDD PostgreSQL)
+│   ├── routes/                 # Endpoints REST
+│   │   ├── auth.py             # Inscription, connexion, JWT
+│   │   ├── participants.py     # CRUD participants
+│   │   ├── equipes.py          # CRUD équipes + gestion membres
+│   │   ├── activites.py        # CRUD 172 activités
+│   │   ├── defis.py            # CRUD défis + inscription
+│   │   ├── saisies.py          # Saisie d'activités + calcul points
+│   │   └── stats.py            # Classements, statistiques
+│   └── utils/
+│       ├── __init__.py         # Calcul de points (durée × intensité)
+│       └── seed.py             # 172 activités pré-chargées
+├── frontend/                   # Interface web HTML/CSS/JS
+│   ├── index.html              # Connexion / Inscription
+│   ├── css/style.css           # Design complet
+│   ├── js/app.js               # Client API, utilitaires
+│   └── pages/
+│       ├── tableau-de-bord.html
+│       ├── saisie.html         # Saisir une activité
+│       ├── mes-activites.html  # Historique personnel
+│       ├── classement.html     # Classements + statistiques
+│       ├── equipes.html        # Vue des équipes
+│       └── gestion.html        # Administration (gestionnaires)
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── .env.example
 ```
 
-### Commandes httpie
+---
 
-``` bash
-http localhost:5000/api/activites/
+## 🚀 Démarrage rapide
+
+### 1. Cloner et configurer
+
+```bash
+git clone <repo>
+cd defisante
+cp .env.example .env
+# Modifier .env selon vos besoins
 ```
 
-``` bash
-http POST localhost:5000/api/activites/ description=test id_activite=250 nom=Test points_femme=0 points_homme=0 points_mixte=0
+### 2. Lancer avec Docker Compose
+
+```bash
+docker-compose up --build
 ```
 
-``` bash
-http DELETE localhost:5000/api/activites/2 
+
+### 2. Compte administrateur par défaut
+
+Créé automatiquement au premier démarrage :
+- **Courriel** : `admin@defisante.local`
+- **Mot de passe** : `Admin123!`
+
+---
+
+## 📡 API REST — Endpoints
+
+### Authentification
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/api/auth/inscription` | Créer un compte |
+| POST | `/api/auth/connexion` | Se connecter (retourne JWT) |
+| GET | `/api/auth/moi` | Mon profil |
+| PUT | `/api/auth/moi` | Modifier mon profil |
+
+### Participants (gestionnaire requis pour liste/suppression)
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/participants/` | Liste tous les participants |
+| GET | `/api/participants/<id>` | Détails d'un participant |
+| PUT | `/api/participants/<id>` | Modifier |
+| DELETE | `/api/participants/<id>` | Supprimer |
+
+### Équipes
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/equipes/` | Liste des équipes (avec membres) |
+| POST | `/api/equipes/` | Créer une équipe |
+| PUT | `/api/equipes/<id>` | Modifier |
+| DELETE | `/api/equipes/<id>` | Supprimer |
+| POST | `/api/equipes/<id>/membres` | Ajouter un membre |
+| DELETE | `/api/equipes/<id>/membres/<pid>` | Retirer un membre |
+
+### Activités
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/activites/?q=search` | Liste (172 activités) |
+| POST | `/api/activites/` | Créer une activité |
+| PUT | `/api/activites/<id>` | Modifier |
+| DELETE | `/api/activites/<id>` | Supprimer |
+
+### Défis
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/defis/` | Liste des défis |
+| GET | `/api/defis/actif` | Défi actuellement actif |
+| POST | `/api/defis/` | Créer un défi |
+| POST | `/api/defis/<id>/inscrire` | S'inscrire à un défi |
+| GET | `/api/defis/<id>/participants` | Participants d'un défi |
+
+### Saisies
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/saisies/` | Mes saisies |
+| POST | `/api/saisies/` | Enregistrer une activité |
+| DELETE | `/api/saisies/<id>` | Supprimer une saisie |
+| POST | `/api/saisies/preview` | Calculer points sans sauvegarder |
+
+### Statistiques
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/stats/classement/participants` | Classement individuel |
+| GET | `/api/stats/classement/equipes` | Classement par équipes |
+| GET | `/api/stats/activites/populaires` | Activités les plus pratiquées |
+| GET | `/api/stats/repartition/sexe` | Répartition par sexe |
+| GET | `/api/stats/resume` | Résumé global |
+
+> Tous les endpoints stats acceptent `?id_defi=<id>` pour filtrer par défi.
+
+---
+
+## 🔐 Sécurité
+
+- Authentification par **JWT** (Bearer token)
+- Mots de passe hashés avec **bcrypt**
+- Deux rôles : `participant` et `gestionnaire`
+- CORS configuré (à restreindre en production)
+
+---
+
+## 📊 Calcul des points
+
 ```
+Points = Points_base × (Durée_minutes ÷ 30) × Multiplicateur_intensité
+
+Multiplicateurs :
+  🔵 Faible  : × 0.75
+  🟡 Moyenne : × 1.00
+  🔴 Intense : × 1.25
+```
+
+Les points de base varient selon :
+- Le **type d'activité** (table de pondération)
+- Le **sexe** du participant (points Homme / Femme / Mixte)
+
+---
+TEST
+
+$token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+
+# 1. Connexion
+$resp = Invoke-RestMethod -Uri "http://localhost:5000/api/auth/connexion" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"courriel":"admin@defisante.local","mot_de_passe":"Admin123!"}'
+$token = $resp.token
+
+# 2. Défi actif
+Invoke-RestMethod -Uri "http://localhost:5000/api/defis/actif" `
+  -Headers @{ Authorization = "Bearer $token" }
+
+# 3. Classement (défi 1)
+Invoke-RestMethod -Uri "http://localhost:5000/api/stats/classement/participants?id_defi=1" `
+  -Headers @{ Authorization = "Bearer $token" }
+
+# 4. Mes saisies
+Invoke-RestMethod -Uri "http://localhost:5000/api/saisies/" `
+  -Headers @{ Authorization = "Bearer $token" }
+
+# 5. Mes défis
+Invoke-RestMethod -Uri "http://localhost:5000/api/auth/moi/defis" `
+  -Headers @{ Authorization = "Bearer $token" }
+

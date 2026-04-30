@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Santé — Saisir</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .saisie-grid { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; }
+    @media (max-width: 900px) { .saisie-grid { grid-template-columns: 1fr; } }
+    .act-results {
+      position: absolute; left: 0; right: 0; top: 100%;
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      max-height: 260px; overflow-y: auto; z-index: 50;
+      box-shadow: var(--shadow-lg); display: none;
+    }
+    .act-results.open { display: block; }
+    .act-result {
+      padding: 0.75rem 0.875rem; cursor: pointer; border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .act-result:last-child { border-bottom: none; }
+    .act-result:hover { background: var(--bg3); }
+    .act-result .nom { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .act-result .pts { font-size: 0.78rem; color: var(--text3); margin-top: 0.1rem; }
+    .search-wrap { position: relative; }
+    .search-wrap.has-focus .form-control { border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-color: var(--accent); }
+    .selected-act {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--accent-bg); border: 1px solid rgba(61,220,132,0.25);
+      border-radius: var(--radius-sm); padding: 0.75rem 1rem;
+    }
+    .selected-act .nom { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+    .selected-act .sub { font-size: 0.78rem; color: var(--text2); margin-top: 0.15rem; }
+    .clear-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); cursor: pointer; border-radius: var(--radius-xs); width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; transition: all 0.15s; }
+    .clear-btn:hover { background: var(--red-bg); border-color: rgba(255,95,95,0.3); color: var(--red); }
+    .intensite-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.625rem; }
+    .int-btn {
+      padding: 0.875rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg3); cursor: pointer; text-align: center; transition: all 0.15s var(--ease);
+      font-family: var(--font-body);
+    }
+    .int-btn:hover { border-color: var(--border2); background: var(--bg4); }
+    .int-btn .i-label { font-size: 0.82rem; font-weight: 600; color: var(--text2); margin-top: 0.3rem; }
+    .int-btn .i-mult { font-size: 0.72rem; color: var(--text3); margin-top: 0.1rem; }
+    .int-btn.sel-faible  { border-color: var(--blue); background: var(--blue-bg); }
+    .int-btn.sel-faible  .i-label { color: var(--blue); }
+    .int-btn.sel-moyenne { border-color: var(--orange); background: var(--orange-bg); }
+    .int-btn.sel-moyenne .i-label { color: var(--orange); }
+    .int-btn.sel-intense { border-color: var(--red); background: var(--red-bg); }
+    .int-btn.sel-intense .i-label { color: var(--red); }
+    .preview-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; text-align: center;
+      margin-top: 1.5rem;
+    }
+    .preview-val {
+      font-family: var(--font-head); font-size: 3rem; font-weight: 800;
+      letter-spacing: -0.04em; color: var(--accent); line-height: 1;
+      margin: 0.5rem 0;
+      transition: all 0.3s var(--ease);
+    }
+    .preview-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); }
+    .preview-sub { font-size: 0.82rem; color: var(--text2); margin-top: 0.4rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .chip { padding: 0.25rem 0.625rem; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; font-size: 0.78rem; color: var(--text2); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/pages/tableau-de-bord.html" class="nav-logo"><span class="logo-dot"></span> Défi Santé</a>
+    <div class="nav-links">
+      <a href="/pages/tableau-de-bord.html" class="nav-link">Tableau de bord</a>
+      <a href="/pages/saisie.html" class="nav-link active">Saisir activité</a>
+      <a href="/pages/mes-activites.html" class="nav-link">Mes activités</a>
+      <a href="/pages/classement.html" class="nav-link">Classement</a>
+      <a href="/pages/equipes.html" class="nav-link">Équipes</a>
+      <a href="/pages/gestion.html" class="nav-link nav-gestionnaire">Gestion</a>
+    </div>
+    <div class="nav-user"></div>
+  </div>
+</nav>
+<div class="page">
+  <div class="page-header">
+    <div><div class="page-title">Saisir une activité</div><div class="page-subtitle">Enregistrez votre activité physique et accumulez des points</div></div>
+  </div>
+  <div id="alert-saisie"></div>
+  <div class="saisie-grid">
+    <div class="card">
+      <div class="card-title">Détails de l'activité</div>
+
+      <div class="form-group">
+        <label class="form-label">Activité physique</label>
+        <div id="selected-wrap" class="hidden">
+          <div class="selected-act">
+            <div><div class="nom" id="sel-nom">—</div><div class="sub" id="sel-pts">—</div></div>
+            <button class="clear-btn" onclick="clearAct()">✕</button>
+          </div>
+        </div>
+        <div id="search-wrap" class="search-wrap">
+          <input type="text" id="act-search" class="form-control" placeholder="Rechercher parmi 172 activités...">
+          <div class="act-results" id="act-results"></div>
+        </div>
+        <div style="margin-top:0.75rem">
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:0.5rem">Accès rapide</div>
+          <div class="chips" id="quick-chips"></div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="date-act" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Durée (minutes)</label>
+          <input type="number" id="duree" class="form-control" min="5" max="600" step="5" placeholder="30">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Intensité</label>
+        <div class="intensite-grid">
+          <button class="int-btn" data-val="faible" onclick="selInt('faible')">🔵<div class="i-label">Faible</div><div class="i-mult">× 0.75</div></button>
+          <button class="int-btn sel-moyenne" data-val="moyenne" onclick="selInt('moyenne')">🟡<div class="i-label">Moyenne</div><div class="i-mult">× 1.00</div></button>
+          <button class="int-btn" data-val="intense" onclick="selInt('intense')">🔴<div class="i-label">Intense</div><div class="i-mult">× 1.25</div></button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Défi associé</label>
+        <select id="defi-sel" class="form-control"><option value="">— Aucun défi —</option></select>
+      </div>
+
+      <button class="btn btn-green btn-block btn-lg" onclick="submit()">Enregistrer l'activité</button>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title">Aperçu des points</div>
+        <div class="preview-card">
+          <div class="preview-label">Points estimés</div>
+          <div class="preview-val" id="prev-pts">—</div>
+          <div class="preview-sub" id="prev-sub">Sélectionnez une activité et entrez la durée</div>
+        </div>
+        <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:0.875rem">Formule</div>
+          <div style="font-size:0.82rem;color:var(--text2);line-height:1.8">
+            Points = Base × (Durée ÷ 30) × Intensité
+          </div>
+          <table style="width:100%;margin-top:0.75rem">
+            <tr><td style="font-size:0.82rem;color:var(--text3);padding:0.2rem 0">🔵 Faible</td><td style="text-align:right;font-size:0.82rem;color:var(--blue)">× 0.75</td></tr>
+            <tr><td style="font-size:0.82rem;color:var(--text3);padding:0.2rem 0">🟡 Moyenne</td><td style="text-align:right;font-size:0.82rem;color:var(--orange)">× 1.00</td></tr>
+            <tr><td style="font-size:0.82rem;color:var(--text3);padding:0.2rem 0">🔴 Intense</td><td style="text-align:right;font-size:0.82rem;color:var(--red)">× 1.25</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card" id="act-info-card" style="margin-top:1.5rem;display:none">
+        <div class="card-title">Pondération</div>
+        <div id="act-info-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+if (!Auth.requireAuth()) throw 0;
+const user = Auth.getUser();
+let allActs = [], selActId = null, selInt2 = "moyenne";
+
+document.getElementById("date-act").value = new Date().toISOString().split("T")[0];
+
+async function init() {
+  allActs = await GET("/activites/");
+  document.getElementById("quick-chips").innerHTML = allActs.slice(0,10).map(a=>
+    `<div class="chip" onclick="pick(${a.id_activite})">${a.nom}</div>`).join("");
+  const defis = await GET("/defis/");
+  defis.forEach(d=>{
+    const o=document.createElement("option");
+    o.value=d.id_defi; o.textContent=`${d.nom} (${fmt.date(d.date_debut)} – ${fmt.date(d.date_fin)})`;
+    if(d.actif)o.selected=true;
+    document.getElementById("defi-sel").appendChild(o);
+  });
+}
+
+const inp=document.getElementById("act-search"), res=document.getElementById("act-results");
+inp.addEventListener("input",()=>{
+  const q=inp.value.toLowerCase().trim();
+  if(!q){res.classList.remove("open");return;}
+  const m=allActs.filter(a=>a.nom.toLowerCase().includes(q)).slice(0,12);
+  res.innerHTML=m.length?m.map(a=>`<div class="act-result" onclick='pickObj(${JSON.stringify(a)})'><div class="nom">${a.nom}</div><div class="pts">H:${a.points_homme} · F:${a.points_femme} · M:${a.points_mixte}</div></div>`).join(""):`<div class="act-result"><div class="pts" style="color:var(--text3)">Aucun résultat</div></div>`;
+  res.classList.add("open");
+  document.getElementById("search-wrap").classList.add("has-focus");
+});
+document.addEventListener("click",e=>{if(!e.target.closest("#search-wrap"))res.classList.remove("open");});
+
+function pick(id){pickObj(allActs.find(a=>a.id_activite===id));}
+function pickObj(a){
+  selActId=a.id_activite;
+  const s=user.sexe,b=s==="homme"?a.points_homme:s==="femme"?a.points_femme:a.points_mixte;
+  document.getElementById("sel-nom").textContent=a.nom;
+  document.getElementById("sel-pts").textContent=`Base: ${b} pts/30min (${fmt.sexe(s)})`;
+  document.getElementById("selected-wrap").classList.remove("hidden");
+  document.getElementById("search-wrap").classList.add("hidden");
+  res.classList.remove("open");
+  document.getElementById("act-info-card").style.display="block";
+  document.getElementById("act-info-body").innerHTML=`
+    <table style="width:100%">
+      <tr><td style="font-size:0.82rem;color:var(--text3);padding:0.3rem 0">Points Homme</td><td style="text-align:right;font-size:0.875rem;color:var(--text);font-weight:600">${a.points_homme}/30min</td></tr>
+      <tr><td style="font-size:0.82rem;color:var(--text3);padding:0.3rem 0">Points Femme</td><td style="text-align:right;font-size:0.875rem;color:var(--text);font-weight:600">${a.points_femme}/30min</td></tr>
+      <tr><td style="font-size:0.82rem;color:var(--text3);padding:0.3rem 0">Points Mixte</td><td style="text-align:right;font-size:0.875rem;color:var(--text);font-weight:600">${a.points_mixte}/30min</td></tr>
+    </table>`;
+  updatePreview();
+}
+function clearAct(){
+  selActId=null;
+  document.getElementById("selected-wrap").classList.add("hidden");
+  document.getElementById("search-wrap").classList.remove("hidden");
+  document.getElementById("act-search").value="";
+  document.getElementById("act-info-card").style.display="none";
+  document.getElementById("prev-pts").textContent="—";
+  document.getElementById("prev-sub").textContent="Sélectionnez une activité et entrez la durée";
+}
+function selInt(v){
+  selInt2=v;
+  document.querySelectorAll(".int-btn").forEach(b=>{b.className="int-btn";if(b.dataset.val===v)b.classList.add("sel-"+v);});
+  updatePreview();
+}
+document.getElementById("duree").addEventListener("input",updatePreview);
+async function updatePreview(){
+  if(!selActId)return;
+  const d=parseInt(document.getElementById("duree").value);
+  if(!d||d<5)return;
+  try{
+    const r=await POST("/saisies/preview",{id_activite:selActId,duree_minutes:d,intensite:selInt2});
+    document.getElementById("prev-pts").textContent=r.points_obtenus.toFixed(1)+" pts";
+    document.getElementById("prev-sub").textContent=`${d} min · ${fmt.intensite(selInt2)}`;
+  }catch{}
+}
+async function submit(){
+  if(!selActId){showAlert("#alert-saisie","Veuillez sélectionner une activité.");return;}
+  const d=parseInt(document.getElementById("duree").value);
+  if(!d||d<5){showAlert("#alert-saisie","Durée invalide (min 5 minutes).");return;}
+  const date=document.getElementById("date-act").value;
+  const defiId=document.getElementById("defi-sel").value;
+  try{
+    const s=await POST("/saisies/",{id_activite:selActId,duree_minutes:d,intensite:selInt2,date_activite:date,id_defi:defiId?parseInt(defiId):null});
+    showAlert("#alert-saisie",`${s.activite_nom} enregistrée · +${s.points_obtenus.toFixed(1)} points`,"success");
+    clearAct();
+    document.getElementById("duree").value="";
+    document.getElementById("date-act").value=new Date().toISOString().split("T")[0];
+    selInt("moyenne");
+  }catch(e){showAlert("#alert-saisie",e.message);}
+}
+init();
+</script>
+</body>
+</html>
