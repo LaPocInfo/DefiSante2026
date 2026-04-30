@@ -1,10 +1,10 @@
-# 🏃 Défi Santé
+# Défi Santé
 
 Application web de gestion de défi sportif communautaire. Développée dans le cadre d'un stage en Techniques de l'informatique au Cégep La Pocatière.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 defisante/
@@ -40,7 +40,7 @@ defisante/
 
 ---
 
-## 🚀 Démarrage rapide
+## Démarrage rapide
 
 ### 1. Cloner et configurer
 
@@ -66,7 +66,7 @@ Créé automatiquement au premier démarrage :
 
 ---
 
-## 📡 API REST — Endpoints
+## API REST — Endpoints
 
 ### Authentification
 | Méthode | Route | Description |
@@ -132,7 +132,7 @@ Créé automatiquement au premier démarrage :
 
 ---
 
-## 🔐 Sécurité
+## Sécurité
 
 - Authentification par **JWT** (Bearer token)
 - Mots de passe hashés avec **bcrypt**
@@ -141,7 +141,7 @@ Créé automatiquement au premier démarrage :
 
 ---
 
-## 📊 Calcul des points
+## Calcul des points
 
 ```
 Points = Points_base × (Durée_minutes ÷ 30) × Multiplicateur_intensité
@@ -157,30 +157,77 @@ Les points de base varient selon :
 - Le **sexe** du participant (points Homme / Femme / Mixte)
 
 ---
-TEST
+## Tests de requête
 
+Voici quelques requêtes en utilisant `curl`, des commandes Powershell et l'application [httpie](https://httpie.io/).
+
+Voici un exemple de *token* d'authentification.
+
+```powershell
 $token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
 
-# 1. Connexion
+### Connexion
+
+```powershell
 $resp = Invoke-RestMethod -Uri "http://localhost:5000/api/auth/connexion" `
   -Method POST `
   -ContentType "application/json" `
   -Body '{"courriel":"admin@defisante.local","mot_de_passe":"Admin123!"}'
 $token = $resp.token
+```
 
-# 2. Défi actif
+```bash
+# Génère une erreur de connexion (normal)
+http POST http://localhost:5000/api/auth/connexion courriel="test" mot_de_passe="test"
+
+# Connexion avec succès
+http POST http://localhost:5000/api/auth/connexion courriel="admin@defisante.local" mot_de_passe="Admin123!""
+
+# Obtenir les informations du profil
+http http://localhost:5000/api/auth/moi Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Inscription
+
+```bash
+# Inscription incomplète
+http POST http://localhost:5000/api/auth/inscription courriel="admin@defisante.local" mot_de_passe="Admin123!""
+
+# Inscription complète
+http POST http://localhost:5000/api/auth/inscription prenom=test nom=test sexe=homme courriel="admin@defisante.local2" mot_de_passe="Admin123!"
+
+```
+
+### Défi actif
+
+```powershell
 Invoke-RestMethod -Uri "http://localhost:5000/api/defis/actif" `
   -Headers @{ Authorization = "Bearer $token" }
+```
 
-# 3. Classement (défi 1)
+### Classement (défi 1)
+
+```powershell
 Invoke-RestMethod -Uri "http://localhost:5000/api/stats/classement/participants?id_defi=1" `
   -Headers @{ Authorization = "Bearer $token" }
+```
 
-# 4. Mes saisies
+### Mes saisies
+
+```powershell
 Invoke-RestMethod -Uri "http://localhost:5000/api/saisies/" `
   -Headers @{ Authorization = "Bearer $token" }
+```
 
-# 5. Mes défis
+```bash
+# Liste des activités saisies
+http -F http://localhost:5000/api/saisies Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Mes défis
+
+```powershell
 Invoke-RestMethod -Uri "http://localhost:5000/api/auth/moi/defis" `
   -Headers @{ Authorization = "Bearer $token" }
-
+```
