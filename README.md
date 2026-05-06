@@ -2,6 +2,10 @@
 
 Application web de gestion de défi sportif communautaire. Développée dans le cadre d'un stage en Techniques de l'informatique au Cégep La Pocatière.
 
+
+Compte Admin : admin@defisante.local / Admin123!
+
+
 ---
 
 ## 🏗️ Architecture
