@@ -2,6 +2,10 @@
 
 Application web de gestion de défi sportif communautaire. Développée dans le cadre d'un stage en Techniques de l'informatique au Cégep La Pocatière.
 
+
+Compte Admin : admin@defisante.local / Admin123!
+
+
 ---
 
 ## 🏗️ Architecture
@@ -158,4 +162,116 @@ Les points de base varient selon :
 
 ---
 
+## Tests de requête
 
+Voici quelques requêtes en utilisant `curl`, des commandes Powershell et l'application [httpie](https://httpie.io/).
+
+Voici un exemple de *token* d'authentification.
+
+```powershell
+$token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Connexion
+
+```powershell
+$resp = Invoke-RestMethod -Uri "http://localhost:5000/api/auth/connexion" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"courriel":"admin@defisante.local","mot_de_passe":"Admin123!"}'
+$token = $resp.token
+```
+
+```bash
+# Génère une erreur de connexion (normal)
+http POST http://localhost:5000/api/auth/connexion courriel="test" mot_de_passe="test"
+
+# Connexion avec succès
+http POST http://localhost:5000/api/auth/connexion courriel="admin@defisante.local" mot_de_passe="Admin123!""
+
+# Obtenir les informations du profil
+http http://localhost:5000/api/auth/moi Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Inscription
+
+```bash
+# Inscription incomplète
+http POST http://localhost:5000/api/auth/inscription courriel="admin@defisante.local" mot_de_passe="Admin123!""
+
+# Inscription complète
+http POST http://localhost:5000/api/auth/inscription prenom=test nom=test sexe=homme courriel="admin@defisante.local2" mot_de_passe="Admin123!"
+
+```
+
+### Défi actif
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/defis/actif" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+### Classement (défi 1)
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/stats/classement/participants?id_defi=1" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+### Mes saisies
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/saisies/" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+```bash
+# Liste des activités saisies
+http -F http://localhost:5000/api/saisies Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Mes défis
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/auth/moi/defis" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+Exécution des scripts de démo — Défi Santé 2026
+Prérequis
+
+Docker et Docker Compose installés
+Le projet lancé (docker-compose up --build)
+
+
+1. seed_admin.py — Créer le compte administrateur
+À exécuter une seule fois après le premier démarrage pour initialiser le compte gestionnaire par défaut.
+bashdocker exec defisante_api python seed_admin.py
+Compte créé :
+ChampValeurCourrieladmin@defisante.localMot de passeAdmin123!RôleGestionnaire
+
+⚠️ Si le compte existe déjà, le script l'indique et ne fait rien.
+
+
+2. seed_demo.py — Remplir la base avec des données fictives
+Peuple la base de données avec un jeu de données complet pour tester l'application.
+bashdocker exec defisante_api python seed_demo.py
+Ce que le script crée :
+
+3 équipes (Les Cheetahs, Les Ours Polaires, Les Aigles)
+10 participants dont 1 gestionnaire (alice@demo.com)
+2 défis (un passé, un en cours)
+~60 saisies d'activités réparties sur les dernières semaines
+
+Mot de passe de tous les comptes demo : Demo123!
+
+Ordre recommandé
+bash# 1. Démarrer l'application
+docker-compose up --build -d
+
+# 2. Créer le compte admin (une seule fois)
+docker exec defisante_api python seed_admin.py
+
+# 3. Charger les données de démo
+docker exec defisante_api python seed_demo.py
+L'interface est ensuite accessible sur http://localhost:5000 et Adminer (gestion BDD) sur http://localhost:8888.
