@@ -162,6 +162,7 @@ async function load() {
 
 
   try {
+    const p = defi ? `?id_defi=${defi.id_defi}` : "";
     const cl = await GET(`/stats/classement/participants${p}`);
     const moi = cl.find(x => x.id_participant === user.id_participant);
     if (moi) {
