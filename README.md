@@ -275,3 +275,5 @@ docker exec defisante_api python seed_admin.py
 # 3. Charger les données de démo
 docker exec defisante_api python seed_demo.py
 L'interface est ensuite accessible sur http://localhost:5000 et Adminer (gestion BDD) sur http://localhost:8888.
+
+Dans Adminer : PostgreSQL / db / defisante_user / defisante_pass / defisante
