@@ -158,4 +158,79 @@ Les points de base varient selon :
 
 ---
 
+## Tests de requête
+
+Voici quelques requêtes en utilisant `curl`, des commandes Powershell et l'application [httpie](https://httpie.io/).
+
+Voici un exemple de *token* d'authentification.
+
+```powershell
+$token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Connexion
+
+```powershell
+$resp = Invoke-RestMethod -Uri "http://localhost:5000/api/auth/connexion" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"courriel":"admin@defisante.local","mot_de_passe":"Admin123!"}'
+$token = $resp.token
+```
+
+```bash
+# Génère une erreur de connexion (normal)
+http POST http://localhost:5000/api/auth/connexion courriel="test" mot_de_passe="test"
+
+# Connexion avec succès
+http POST http://localhost:5000/api/auth/connexion courriel="admin@defisante.local" mot_de_passe="Admin123!""
+
+# Obtenir les informations du profil
+http http://localhost:5000/api/auth/moi Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Inscription
+
+```bash
+# Inscription incomplète
+http POST http://localhost:5000/api/auth/inscription courriel="admin@defisante.local" mot_de_passe="Admin123!""
+
+# Inscription complète
+http POST http://localhost:5000/api/auth/inscription prenom=test nom=test sexe=homme courriel="admin@defisante.local2" mot_de_passe="Admin123!"
+
+```
+
+### Défi actif
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/defis/actif" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+### Classement (défi 1)
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/stats/classement/participants?id_defi=1" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+### Mes saisies
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/saisies/" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+```bash
+# Liste des activités saisies
+http -F http://localhost:5000/api/saisies Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjM3MjQ0OCwianRpIjoiMTZhODZjMjUtN2UzZS00ODBjLTg1NWQtYzk5YzM1MmEzZGViIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzYzNzI0NDgsImNzcmYiOiI5NDU1ZTEzZi05NDViLTQxYjAtYjgxMS02Y2E5ZDdlNzUzOGEifQ.B-a-Fnim0Z3Xik36cSIKgeKCwOEEA3d30tIvkZ_9qeo"
+```
+
+### Mes défis
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:5000/api/auth/moi/defis" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
 
