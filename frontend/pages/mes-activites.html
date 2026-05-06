@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Santé — Mes activités</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/pages/tableau-de-bord.html" class="nav-logo"><span class="logo-dot"></span> Défi Santé</a>
+    <div class="nav-links">
+      <a href="/pages/tableau-de-bord.html" class="nav-link">Tableau de bord</a>
+      <a href="/pages/saisie.html" class="nav-link">Saisir activité</a>
+      <a href="/pages/mes-activites.html" class="nav-link active">Mes activités</a>
+      <a href="/pages/classement.html" class="nav-link">Classement</a>
+      <a href="/pages/equipes.html" class="nav-link">Équipes</a>
+      <a href="/pages/gestion.html" class="nav-link nav-gestionnaire">Gestion</a>
+    </div>
+    <div class="nav-user"></div>
+  </div>
+</nav>
+<div class="page">
+  <div class="page-header">
+    <div><div class="page-title">Mes activités</div><div class="page-subtitle">Historique complet de vos activités enregistrées</div></div>
+    <a href="/pages/saisie.html" class="btn btn-green">+ Nouvelle activité</a>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card green"><div class="stat-label">Points totaux</div><div class="stat-value" id="s-pts">—</div></div>
+    <div class="stat-card blue"><div class="stat-label">Minutes d'activité</div><div class="stat-value" id="s-mins">—</div></div>
+    <div class="stat-card orange"><div class="stat-label">Activités</div><div class="stat-value" id="s-nb">—</div></div>
+    <div class="stat-card red"><div class="stat-label">Heures au total</div><div class="stat-value" id="s-h">—</div></div>
+  </div>
+  <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem">
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
+      <div class="search-bar" style="flex:1;min-width:180px"><span class="search-icon">🔍</span><input type="text" id="f-act" placeholder="Filtrer par activité..."></div>
+      <select id="f-int" class="form-control" style="width:auto"><option value="">Toutes intensités</option><option value="faible">🔵 Faible</option><option value="moyenne">🟡 Moyenne</option><option value="intense">🔴 Intense</option></select>
+    </div>
+  </div>
+  <div id="alert-act"></div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Activité</th><th>Durée</th><th>Intensité</th><th>Défi</th><th>Points</th><th></th></tr></thead>
+        <tbody id="tbody"><tr><td colspan="6"><div class="loading-center"><div class="spinner"></div></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop hidden" id="m-del">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Supprimer la saisie</div><button class="modal-close">✕</button></div>
+    <div class="modal-body"><p style="color:var(--text2);font-size:0.9rem">Supprimer <strong id="del-nom" style="color:var(--text)"></strong> ? Cette action est irréversible.</p></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('m-del')">Annuler</button><button class="btn btn-red" id="btn-del">Supprimer</button></div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+if (!Auth.requireAuth()) throw 0;
+let all=[];
+async function init(){
+  try{all=await GET("/saisies/");stats();render();}catch{}
+  ["f-act","f-int"].forEach(id=>document.getElementById(id).addEventListener(id==="f-act"?"input":"change",render));
+}
+function stats(){
+  const p=all.reduce((s,x)=>s+x.points_obtenus,0),m=all.reduce((s,x)=>s+x.duree_minutes,0);
+  document.getElementById("s-pts").textContent=p.toFixed(1);
+  document.getElementById("s-mins").textContent=fmt.mins(m);
+  document.getElementById("s-nb").textContent=all.length;
+  document.getElementById("s-h").textContent=(m/60).toFixed(1)+"h";
+}
+function render(){
+  const q=document.getElementById("f-act").value.toLowerCase(),fi=document.getElementById("f-int").value;
+  let r=all;
+  if(q)r=r.filter(s=>s.activite_nom?.toLowerCase().includes(q));
+  if(fi)r=r.filter(s=>s.intensite===fi);
+  const tb=document.getElementById("tbody");
+  tb.innerHTML=r.length?r.map(s=>`<tr>
+    <td>${fmt.date(s.date_activite)}</td>
+    <td><strong>${s.activite_nom}</strong></td>
+    <td><span style="color:var(--text2)">${fmt.mins(s.duree_minutes)}</span></td>
+    <td>${fmt.intensite(s.intensite)}</td>
+    <td><span class="pts-badge">+${s.points_obtenus.toFixed(1)}</span></td>
+    <td><button class="btn btn-red btn-sm" onclick="confirmDel(${s.id_saisie},'${(s.activite_nom||"").replace(/'/g,"\\'")}')">✕</button></td>
+  </tr>`).join(""):`<tr><td colspan="6">${emptyState("🏃","Aucune activité","Commencez à saisir vos activités !")}</td></tr>`;
+}
+let pendId=null;
+function confirmDel(id,nom){pendId=id;document.getElementById("del-nom").textContent=nom;openModal("m-del");}
+document.getElementById("btn-del").onclick=async()=>{
+  try{await DELETE("/saisies/"+pendId);closeModal("m-del");showAlert("#alert-act","Saisie supprimée.","success");all=all.filter(s=>s.id_saisie!==pendId);stats();render();}catch(e){showAlert("#alert-act",e.message);}
+  pendId=null;
+};
+init();
+</script>
+</body>
+</html>

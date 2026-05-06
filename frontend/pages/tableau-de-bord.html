@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Défi Santé — Tableau de bord</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .welcome {
+      background: linear-gradient(135deg, rgba(61,220,132,0.08) 0%, rgba(77,159,255,0.05) 100%);
+      border: 1px solid rgba(61,220,132,0.15);
+      border-radius: var(--radius);
+      padding: 1.75rem 2rem;
+      margin-bottom: 1.75rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .welcome h2 { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; }
+    .welcome p { color: var(--text2); font-size: 0.875rem; margin-top: 0.3rem; }
+    .defi-pill {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 99px; padding: 0.4rem 1rem;
+      font-size: 0.8rem; font-weight: 600; color: var(--text2);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .defi-pill .dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.8)} }
+    .dash-grid { display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; }
+    @media (max-width: 1000px) { .dash-grid { grid-template-columns: 1fr; } }
+    .right-col { display: flex; flex-direction: column; gap: 1.5rem; }
+    .activity-item {
+      display: flex; align-items: center; gap: 0.875rem;
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+      cursor: default;
+    }
+    .activity-item:hover { background: var(--bg3); }
+    .act-icon {
+      width: 38px; height: 38px; flex-shrink: 0;
+      background: var(--accent-bg); border: 1px solid rgba(61,220,132,0.15);
+      border-radius: var(--radius-xs);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .act-name { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .act-meta { font-size: 0.78rem; color: var(--text3); margin-top: 0.1rem; }
+    .mini-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); transition: background 0.15s;
+    }
+    .mini-row:hover { background: var(--bg3); }
+    .mini-rang { width: 28px; text-align: center; font-size: 1rem; font-weight: 700; flex-shrink: 0; }
+    .mini-nom { flex: 1; font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .mini-pts { font-size: 0.875rem; color: var(--accent); font-family: var(--font-head); font-weight: 700; }
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.75rem; }
+    .quick-btn {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+      text-align: center; cursor: pointer; transition: all 0.2s var(--ease); text-decoration: none; color: var(--text2); display: block;
+    }
+    .quick-btn:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); text-decoration: none; transform: translateY(-2px); }
+    .quick-btn .q-icon { font-size: 1.5rem; margin-bottom: 0.4rem; display: block; }
+    .quick-btn .q-label { font-size: 0.82rem; font-weight: 600; }
+    .defi-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); margin-bottom: 0.5rem;
+      transition: border-color 0.15s;
+    }
+    .defi-card:last-child { margin-bottom: 0; }
+    .defi-card.actif { border-color: rgba(61,220,132,0.35); background: rgba(61,220,132,0.04); }
+    .defi-card-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .defi-card-nom { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+    .defi-card-dates { font-size: 0.77rem; color: var(--text3); margin-top: 0.15rem; }
+    .defi-card-equipe { font-size: 0.77rem; color: var(--accent); margin-top: 0.15rem; }
+    .membre-item:last-child { border-bottom: none; }
+    .m-av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #0a1a10; background: var(--accent); flex-shrink: 0; }
+    .m-nom { font-size: 0.875rem; font-weight: 500; }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/pages/tableau-de-bord.html" class="nav-logo"><span class="logo-dot"></span> Défi Santé</a>
+    <div class="nav-links">
+      <a href="/pages/tableau-de-bord.html" class="nav-link active">Tableau de bord</a>
+      <a href="/pages/saisie.html" class="nav-link">Saisir activité</a>
+      <a href="/pages/mes-activites.html" class="nav-link">Mes activités</a>
+      <a href="/pages/classement.html" class="nav-link">Classement</a>
+      <a href="/pages/equipes.html" class="nav-link">Équipes</a>
+      <a href="/pages/gestion.html" class="nav-link nav-gestionnaire">Gestion</a>
+    </div>
+    <div class="nav-user"></div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="welcome">
+    <div>
+      <h2>Bonjour, <span id="user-prenom" style="color:var(--accent)">...</span> 👋</h2>
+      <p id="defi-status">Chargement...</p>
+    </div>
+    <div id="defi-pill"></div>
+  </div>
+
+  <div class="quick-actions">
+    <a href="/pages/saisie.html" class="quick-btn"><span class="q-icon">➕</span><span class="q-label">Saisir une activité</span></a>
+    <a href="/pages/classement.html" class="quick-btn"><span class="q-icon">🏆</span><span class="q-label">Voir le classement</span></a>
+    <a href="/pages/mes-activites.html" class="quick-btn"><span class="q-icon">📋</span><span class="q-label">Mes activités</span></a>
+    <a href="/pages/equipes.html" class="quick-btn"><span class="q-icon">👥</span><span class="q-label">Mon équipe</span></a>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card green"><div class="stat-label">Mes points</div><div class="stat-value" id="s-pts">—</div></div>
+    <div class="stat-card blue"><div class="stat-label">Minutes d'activité</div><div class="stat-value" id="s-mins">—</div></div>
+    <div class="stat-card orange"><div class="stat-label">Activités réalisées</div><div class="stat-value" id="s-nb">—</div></div>
+    <div class="stat-card red"><div class="stat-label">Mon classement</div><div class="stat-value" id="s-rang">—</div></div>
+  </div>
+
+  <!-- MES DÉFIS -->
+  <div id="mes-defis-section" class="card" style="margin-bottom:1.5rem">
+    <div class="card-title">🏅 Mes défis</div>
+    <div id="mes-defis-list"><div class="loading-center"><div class="spinner"></div></div></div>
+  </div>
+
+  <div class="dash-grid">
+    <div class="card">
+      <div class="card-title">Activités récentes</div>
+      <div id="recent-list"><div class="loading-center"><div class="spinner"></div></div></div>
+      <div style="margin-top:1rem"><a href="/pages/mes-activites.html" class="btn btn-ghost btn-sm">Voir tout →</a></div>
+    </div>
+    <div class="right-col">
+      <div class="card">
+        <div class="card-title">Top 5 participants</div>
+        <div id="mini-cl"><div class="loading-center"><div class="spinner"></div></div></div>
+        <div style="margin-top:1rem"><a href="/pages/classement.html" class="btn btn-ghost btn-sm">Classement complet →</a></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Mon équipe</div>
+        <div id="mon-equipe"><div class="loading-center"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+if (!Auth.requireAuth()) throw 0;
+const user = Auth.getUser();
+
+async function load() {
+  document.getElementById("user-prenom").textContent = user.prenom;
+
+  let defi = null;
+  try {
+    defi = await GET("/defis/actif");
+    document.getElementById("defi-status").textContent = `Défi en cours · ${fmt.date(defi.date_debut)} → ${fmt.date(defi.date_fin)}`;
+    document.getElementById("defi-pill").innerHTML = `<div class="defi-pill"><span class="dot"></span>${defi.nom}</div>`;
+  } catch {
+    document.getElementById("defi-status").textContent = "Aucun défi actif en ce moment.";
+  }
+
+
+  try {
+    const cl = await GET(`/stats/classement/participants${p}`);
+    const moi = cl.find(x => x.id_participant === user.id_participant);
+    if (moi) {
+      document.getElementById("s-pts").textContent  = moi.total_points.toFixed(1);
+      document.getElementById("s-mins").textContent = fmt.mins(moi.total_minutes);
+      document.getElementById("s-nb").textContent   = moi.nb_activites;
+      document.getElementById("s-rang").textContent = fmt.rang(moi.rang);
+    }
+    document.getElementById("mini-cl").innerHTML = cl.slice(0,5).map(p => `
+      <div class="mini-row">
+        <div class="mini-rang">${fmt.rang(p.rang)}</div>
+        <div class="mini-nom">${p.prenom} ${p.nom}${p.id_participant===user.id_participant?' <span class="badge badge-green">Moi</span>':''}</div>
+        <div class="mini-pts">${p.total_points.toFixed(1)}</div>
+      </div>`).join("") || emptyState("🏆","Aucun participant");
+  } catch { document.getElementById("mini-cl").innerHTML = emptyState("⚠️","Erreur"); }
+
+  try {
+    const saisies = await GET("/saisies/");
+    document.getElementById("recent-list").innerHTML = saisies.slice(0,5).map(s=>`
+      <div class="activity-item">
+        <div class="act-icon">🏃</div>
+        <div style="flex:1">
+          <div class="act-name">${s.activite_nom}</div>
+          <div class="act-meta">${fmt.date(s.date_activite)} · ${fmt.mins(s.duree_minutes)} · ${fmt.intensite(s.intensite)}</div>
+        </div>
+        <span class="pts-badge">+${s.points_obtenus.toFixed(1)}</span>
+      </div>`).join("") || emptyState("📋","Aucune activité","Commencez par saisir votre première activité!");
+  } catch { document.getElementById("recent-list").innerHTML = emptyState("⚠️","Erreur"); }
+
+  // Charger mes défis
+  try {
+    const mesDefis = await GET("/auth/moi/defis");
+    const container = document.getElementById("mes-defis-list");
+    if (!mesDefis.length) {
+      container.innerHTML = emptyState("🏅", "Aucun défi", "Inscrivez-vous à un défi depuis la page Gestion ou contactez un gestionnaire.");
+    } else {
+      container.innerHTML = mesDefis.map(d => `
+        <div class="defi-card${d.actif ? ' actif' : ''}">
+          <div class="defi-card-icon">${d.actif ? '🟢' : '📅'}</div>
+          <div style="flex:1">
+            <div class="defi-card-nom">${d.nom}${d.actif ? ' <span class="badge badge-green">En cours</span>' : ''}</div>
+            <div class="defi-card-dates">${fmt.date(d.date_debut)} → ${fmt.date(d.date_fin)}</div>
+            ${d.equipe_nom_defi ? `<div class="defi-card-equipe">👥 ${d.equipe_nom_defi}</div>` : ''}
+          </div>
+          <div style="font-size:0.78rem;color:var(--text3)">${d.nb_participants} participant${d.nb_participants > 1 ? 's' : ''}</div>
+        </div>`).join("");
+    }
+  } catch { document.getElementById("mes-defis-list").innerHTML = emptyState("⚠️", "Erreur de chargement"); }
+
+  try {
+    const me = await GET("/auth/moi");
+    if (me.id_equipe) {
+      const eq = await GET(`/equipes/${me.id_equipe}`);
+      document.getElementById("mon-equipe").innerHTML = `
+        <div style="font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:0.75rem;color:var(--text)">${eq.nom}</div>
+        <div style="font-size:0.78rem;color:var(--text3);margin-bottom:1rem">${eq.nb_membres}/4 membre(s)</div>
+        ${(eq.membres||[]).map(m=>`
+          <div class="membre-item">
+            <div class="m-av">${m.prenom[0]}${m.nom[0]}</div>
+            <span class="m-nom">${m.prenom} ${m.nom}</span>
+            ${m.id_participant===user.id_participant?'<span class="badge badge-green" style="margin-left:auto">Moi</span>':''}
+          </div>`).join("")}`;
+    } else {
+      document.getElementById("mon-equipe").innerHTML = emptyState("👥","Pas d'équipe","Contactez un gestionnaire.");
+    }
+  } catch { document.getElementById("mon-equipe").innerHTML = emptyState("⚠️","Erreur"); }
+}
+load();
+</script>
+</body>
+</html>
