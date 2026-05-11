@@ -1,4 +1,4 @@
-# 🏃 Défi Santé
+# 🏃 Défi Santé (Fait par Mathis Dvivé et Alexandre Pech--Rossell)
 
 Application web de gestion de défi sportif communautaire. Développée dans le cadre d'un stage en Techniques de l'informatique au Cégep La Pocatière.
 
