@@ -1,3 +1,4 @@
+# Fait par Mathis Duvivé et Alexandre Pech-Rossell
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from api import db, bcrypt

@@ -1,3 +1,4 @@
+# Fait par Mathis Duvivé et Alexandre Pech-Rossell
 from api import db
 from datetime import date
 
