@@ -1,4 +1,4 @@
-# 🏃 Défi Santé
+# 🏃 Défi Santé (Fait par Mathis Dvivé et Alexandre Pech--Rossell)
 
 Application web de gestion de défi sportif communautaire. Développée dans le cadre d'un stage en Techniques de l'informatique au Cégep La Pocatière.
 
@@ -275,3 +275,5 @@ docker exec defisante_api python seed_admin.py
 # 3. Charger les données de démo
 docker exec defisante_api python seed_demo.py
 L'interface est ensuite accessible sur http://localhost:5000 et Adminer (gestion BDD) sur http://localhost:8888.
+
+Dans Adminer : PostgreSQL / db / defisante_user / defisante_pass / defisante
