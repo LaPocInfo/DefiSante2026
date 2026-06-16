@@ -1,6 +1,12 @@
 # Défi Santé
+=======
+# 🏃 Défi Santé (Fait par Mathis Dvivé et Alexandre Pech--Rossell)
 
 Application web de gestion de défi sportif communautaire. Développée dans le cadre d'un stage en Techniques de l'informatique au Cégep La Pocatière.
+
+
+Compte Admin : admin@defisante.local / Admin123!
+
 
 ---
 
@@ -157,8 +163,10 @@ Les points de base varient selon :
 - Le **sexe** du participant (points Homme / Femme / Mixte)
 
 ---
+
 ## Tests de requête
 
+>>>>>>> DefiSanteFin
 Voici quelques requêtes en utilisant `curl`, des commandes Powershell et l'application [httpie](https://httpie.io/).
 
 Voici un exemple de *token* d'authentification.
@@ -231,3 +239,46 @@ http -F http://localhost:5000/api/saisies Authorization:"Bearer eyJhbGciOiJIUzI1
 Invoke-RestMethod -Uri "http://localhost:5000/api/auth/moi/defis" `
   -Headers @{ Authorization = "Bearer $token" }
 ```
+
+=======
+
+Exécution des scripts de démo — Défi Santé 2026
+Prérequis
+
+Docker et Docker Compose installés
+Le projet lancé (docker-compose up --build)
+
+
+1. seed_admin.py — Créer le compte administrateur
+À exécuter une seule fois après le premier démarrage pour initialiser le compte gestionnaire par défaut.
+bashdocker exec defisante_api python seed_admin.py
+Compte créé :
+ChampValeurCourrieladmin@defisante.localMot de passeAdmin123!RôleGestionnaire
+
+⚠️ Si le compte existe déjà, le script l'indique et ne fait rien.
+
+
+2. seed_demo.py — Remplir la base avec des données fictives
+Peuple la base de données avec un jeu de données complet pour tester l'application.
+bashdocker exec defisante_api python seed_demo.py
+Ce que le script crée :
+
+3 équipes (Les Cheetahs, Les Ours Polaires, Les Aigles)
+10 participants dont 1 gestionnaire (alice@demo.com)
+2 défis (un passé, un en cours)
+~60 saisies d'activités réparties sur les dernières semaines
+
+Mot de passe de tous les comptes demo : Demo123!
+
+Ordre recommandé
+bash# 1. Démarrer l'application
+docker-compose up --build -d
+
+# 2. Créer le compte admin (une seule fois)
+docker exec defisante_api python seed_admin.py
+
+# 3. Charger les données de démo
+docker exec defisante_api python seed_demo.py
+L'interface est ensuite accessible sur http://localhost:5000 et Adminer (gestion BDD) sur http://localhost:8888.
+
+Dans Adminer : PostgreSQL / db / defisante_user / defisante_pass / defisante

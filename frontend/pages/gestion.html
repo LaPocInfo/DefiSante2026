@@ -1,3 +1,4 @@
+<!-- Fait par Mathis Duvivé et Alexandre Pech-Rossell -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -343,7 +344,7 @@ async function delAct(id,nom){
 async function loadSaisies(){
   const did=document.getElementById("f-defi-s").value;
   try{
-    const s=await GET(`/saisies/${did?"?id_defi="+did:""}`);
+    const s=await GET("/saisies/");
     document.getElementById("list-saisies").innerHTML=s.length?s.slice(0,30).map(x=>`
       <div class="item">
         <div class="item-info">

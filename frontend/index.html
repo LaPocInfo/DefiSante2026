@@ -1,3 +1,4 @@
+<!-- Fait par Mathis Duvivé et Alexandre Pech-Rossell -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -45,11 +46,7 @@
         <input type="password" id="login-mdp" class="form-control" placeholder="••••••••" autocomplete="current-password">
       </div>
       <button class="btn btn-green btn-block btn-lg" onclick="doLogin()">Se connecter</button>
-      <p style="text-align:center;margin-top:1.25rem;font-size:0.78rem;color:var(--text3)">
-        Compte gestionnaire par défaut<br>
-        <span style="color:var(--text2);font-family:monospace">admin@defisante.local</span> /
-        <span style="color:var(--text2);font-family:monospace">Admin123!</span>
-      </p>
+
     </div>
 
     <!-- INSCRIPTION -->
@@ -86,10 +83,11 @@
 
       <!-- DÉFIS DISPONIBLES -->
       <div class="form-group">
-        <label class="form-label">Défis auxquels vous inscrire <span style="color:var(--text3);font-weight:400">(optionnel)</span></label>
-        <div id="reg-defis-list" class="checkbox-group">
-          <div class="form-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Chargement des défis…</div>
-        </div>
+        <label class="form-label">Défi auquel vous inscrire <span style="color:var(--text3);font-weight:400">(optionnel)</span></label>
+        <select id="reg-defi-sel" class="form-control">
+          <option value="">— Aucun défi —</option>
+        </select>
+        <div class="form-hint" id="reg-defi-hint">Chargement des défis…</div>
       </div>
 
       <!-- ÉQUIPE -->
@@ -124,21 +122,22 @@
     try {
       const res = await fetch(`${API_BASE_PUBLIC}/auth/defis-publics`);
       const defis = await res.json();
-      const container = document.getElementById("reg-defis-list");
+      const sel = document.getElementById("reg-defi-sel");
+      const hint = document.getElementById("reg-defi-hint");
       if (!defis.length) {
-        container.innerHTML = '<div style="font-size:0.82rem;color:var(--text3);padding:0.5rem">Aucun défi disponible pour le moment.</div>';
+        hint.textContent = "Aucun défi disponible pour le moment.";
       } else {
-        container.innerHTML = defis.map(d => `
-          <label class="checkbox-item">
-            <input type="checkbox" name="reg-defi" value="${d.id_defi}">
-            <span>
-              <span>${d.nom}${d.actif ? '<span class="badge-actif">En cours</span>' : ''}</span>
-              <span class="defi-dates">${fmtDateLocal(d.date_debut)} → ${fmtDateLocal(d.date_fin)}</span>
-            </span>
-          </label>`).join("");
+        defis.forEach(d => {
+          const opt = document.createElement("option");
+          opt.value = d.id_defi;
+          opt.textContent = `${d.nom} (${fmtDateLocal(d.date_debut)} → ${fmtDateLocal(d.date_fin)})${d.actif ? " ✓ En cours" : ""}`;
+          if (d.actif) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        hint.textContent = "Vous pouvez vous inscrire à un défi maintenant ou plus tard.";
       }
     } catch {
-      document.getElementById("reg-defis-list").innerHTML = '<div style="font-size:0.82rem;color:var(--text3);padding:0.5rem">Impossible de charger les défis.</div>';
+      document.getElementById("reg-defi-hint").textContent = "Impossible de charger les défis.";
     }
 
     // Équipes
@@ -203,8 +202,9 @@
     if (!prenom || !nom || !email || !mdp || !sexe) { showAlert("#alert-auth", "Veuillez remplir tous les champs obligatoires."); return; }
     if (mdp.length < 6) { showAlert("#alert-auth", "Mot de passe trop court (min 6 caractères)."); return; }
 
-    // Récupérer les défis cochés
-    const id_defis = [...document.querySelectorAll('input[name="reg-defi"]:checked')].map(i => parseInt(i.value));
+    // Récupérer le défi sélectionné
+    const defi_val = document.getElementById("reg-defi-sel").value;
+    const id_defis = defi_val ? [parseInt(defi_val)] : [];
 
     // Récupérer l'équipe sélectionnée
     const id_equipe = parseInt(document.getElementById("reg-equipe").value) || null;

@@ -1,3 +1,4 @@
+// ===== Fait par Mathis Duvivé et Alexandre Pech--Rossell =====
 // ===== DÉFI SANTÉ — API CLIENT & UTILITIES =====
 
 const API_BASE = "http://localhost:5000/api";

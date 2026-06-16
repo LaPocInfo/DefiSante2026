@@ -1,3 +1,4 @@
+<!-- Fait par Mathis Duvivé et Alexandre Pech-Rossell -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -129,11 +130,6 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Défi associé</label>
-        <select id="defi-sel" class="form-control"><option value="">— Aucun défi —</option></select>
-      </div>
-
       <button class="btn btn-green btn-block btn-lg" onclick="submit()">Enregistrer l'activité</button>
     </div>
 
@@ -177,12 +173,6 @@ async function init() {
   document.getElementById("quick-chips").innerHTML = allActs.slice(0,10).map(a=>
     `<div class="chip" onclick="pick(${a.id_activite})">${a.nom}</div>`).join("");
   const defis = await GET("/defis/");
-  defis.forEach(d=>{
-    const o=document.createElement("option");
-    o.value=d.id_defi; o.textContent=`${d.nom} (${fmt.date(d.date_debut)} – ${fmt.date(d.date_fin)})`;
-    if(d.actif)o.selected=true;
-    document.getElementById("defi-sel").appendChild(o);
-  });
 }
 
 const inp=document.getElementById("act-search"), res=document.getElementById("act-results");
@@ -244,9 +234,8 @@ async function submit(){
   const d=parseInt(document.getElementById("duree").value);
   if(!d||d<5){showAlert("#alert-saisie","Durée invalide (min 5 minutes).");return;}
   const date=document.getElementById("date-act").value;
-  const defiId=document.getElementById("defi-sel").value;
   try{
-    const s=await POST("/saisies/",{id_activite:selActId,duree_minutes:d,intensite:selInt2,date_activite:date,id_defi:defiId?parseInt(defiId):null});
+    const s=await POST("/saisies/",{id_activite:selActId,duree_minutes:d,intensite:selInt2,date_activite:date});
     showAlert("#alert-saisie",`${s.activite_nom} enregistrée · +${s.points_obtenus.toFixed(1)} points`,"success");
     clearAct();
     document.getElementById("duree").value="";

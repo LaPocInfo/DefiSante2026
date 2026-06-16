@@ -1,3 +1,4 @@
+<!-- Fait par Mathis Duvivé et Alexandre Pech-Rossell -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -160,9 +161,9 @@ async function load() {
     document.getElementById("defi-status").textContent = "Aucun défi actif en ce moment.";
   }
 
-  const p = defi ? `?id_defi=${defi.id_defi}` : "";
 
   try {
+    const p = defi ? `?id_defi=${defi.id_defi}` : "";
     const cl = await GET(`/stats/classement/participants${p}`);
     const moi = cl.find(x => x.id_participant === user.id_participant);
     if (moi) {

@@ -1,3 +1,4 @@
+# Fait par Mathis Duvivé et Alexandre Pech-Rossell
 from api import db
 from datetime import date
 
@@ -132,7 +133,6 @@ class SaisieActivite(db.Model):
     points_obtenus = db.Column(db.Numeric(8, 2), nullable=False, default=0)
     id_participant = db.Column(db.Integer, db.ForeignKey("participant.id_participant"), nullable=False)
     id_activite = db.Column(db.Integer, db.ForeignKey("activite.id_activite"), nullable=False)
-    id_defi = db.Column(db.Integer, db.ForeignKey("defi.id_defi"), nullable=True)
 
     participant = db.relationship("Participant", back_populates="saisies")
     activite = db.relationship("Activite", back_populates="saisies")
@@ -148,5 +148,4 @@ class SaisieActivite(db.Model):
             "participant_nom": f"{self.participant.prenom} {self.participant.nom}" if self.participant else None,
             "id_activite": self.id_activite,
             "activite_nom": self.activite.nom if self.activite else None,
-            "id_defi": self.id_defi,
         }

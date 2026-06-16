@@ -1,10 +1,28 @@
+# Fait par Mathis Duvivé et Alexandre Pech-Rossell
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from sqlalchemy import func, case
+from sqlalchemy import func
 from api import db
 from api.models import SaisieActivite, Participant, Equipe, Activite, ParticipationDefi, Defi
 
 stats_bp = Blueprint("stats", __name__)
+
+
+def _defi_participant_ids(did):
+    """IDs des participants inscrits au défi."""
+    rows = ParticipationDefi.query.filter_by(id_defi=did).all()
+    return [r.id_participant for r in rows]
+
+
+def _apply_defi_filter(query, did, defi):
+    """Filtre les saisies sur la plage de dates du défi ET les participants inscrits."""
+    pids = _defi_participant_ids(did)
+    query = query.filter(
+        SaisieActivite.id_participant.in_(pids),
+        SaisieActivite.date_activite >= defi.date_debut,
+        SaisieActivite.date_activite <= defi.date_fin,
+    )
+    return query
 
 
 @stats_bp.route("/classement/participants", methods=["GET"])
@@ -12,6 +30,7 @@ stats_bp = Blueprint("stats", __name__)
 def classement_participants():
     """Total points per participant, optionally filtered by defi."""
     did = request.args.get("id_defi", type=int)
+    defi = Defi.query.get(did) if did else None
 
     query = db.session.query(
         Participant.id_participant,
@@ -24,12 +43,13 @@ def classement_participants():
         func.coalesce(func.count(SaisieActivite.id_saisie), 0).label("nb_activites"),
     ).outerjoin(SaisieActivite, SaisieActivite.id_participant == Participant.id_participant)
 
-    if did:
+    if did and defi:
+        pids = _defi_participant_ids(did)
         query = query.filter(
-            (SaisieActivite.id_defi == did) | (SaisieActivite.id_saisie == None)
+            Participant.id_participant.in_(pids),
+            (SaisieActivite.date_activite >= defi.date_debut) | (SaisieActivite.id_saisie == None),
+            (SaisieActivite.date_activite <= defi.date_fin) | (SaisieActivite.id_saisie == None),
         )
-        # Only participants registered to this defi
-        query = query.join(ParticipationDefi, (ParticipationDefi.id_participant == Participant.id_participant) & (ParticipationDefi.id_defi == did))
 
     result = query.group_by(
         Participant.id_participant, Participant.prenom, Participant.nom, Participant.sexe, Participant.id_equipe
@@ -57,6 +77,8 @@ def classement_participants():
 def classement_equipes():
     """Total and average points per team."""
     did = request.args.get("id_defi", type=int)
+    defi = Defi.query.get(did) if did else None
+    defi_pids = set(_defi_participant_ids(did)) if did else None
 
     equipes = Equipe.query.order_by(Equipe.nom).all()
     result = []
@@ -69,9 +91,14 @@ def classement_equipes():
         total_minutes = 0
         nb_activites = 0
         for m in membres:
+            if defi_pids is not None and m.id_participant not in defi_pids:
+                continue
             q = SaisieActivite.query.filter_by(id_participant=m.id_participant)
-            if did:
-                q = q.filter_by(id_defi=did)
+            if defi:
+                q = q.filter(
+                    SaisieActivite.date_activite >= defi.date_debut,
+                    SaisieActivite.date_activite <= defi.date_fin,
+                )
             saisies = q.all()
             total_points += sum(float(s.points_obtenus) for s in saisies)
             total_minutes += sum(s.duree_minutes for s in saisies)
@@ -99,6 +126,7 @@ def classement_equipes():
 def activites_populaires():
     """Most practiced activities with point totals."""
     did = request.args.get("id_defi", type=int)
+    defi = Defi.query.get(did) if did else None
 
     query = db.session.query(
         Activite.id_activite,
@@ -108,8 +136,13 @@ def activites_populaires():
         func.coalesce(func.sum(SaisieActivite.duree_minutes), 0).label("total_minutes"),
     ).outerjoin(SaisieActivite, SaisieActivite.id_activite == Activite.id_activite)
 
-    if did:
-        query = query.filter((SaisieActivite.id_defi == did) | (SaisieActivite.id_saisie == None))
+    if did and defi:
+        pids = _defi_participant_ids(did)
+        query = query.filter(
+            (SaisieActivite.id_participant.in_(pids)) | (SaisieActivite.id_saisie == None),
+            (SaisieActivite.date_activite >= defi.date_debut) | (SaisieActivite.id_saisie == None),
+            (SaisieActivite.date_activite <= defi.date_fin) | (SaisieActivite.id_saisie == None),
+        )
 
     result = query.group_by(Activite.id_activite, Activite.nom)\
         .order_by(func.count(SaisieActivite.id_saisie).desc()).limit(20).all()
@@ -128,6 +161,7 @@ def activites_populaires():
 def repartition_sexe():
     """Point distribution by sex."""
     did = request.args.get("id_defi", type=int)
+    defi = Defi.query.get(did) if did else None
 
     query = db.session.query(
         Participant.sexe,
@@ -135,8 +169,13 @@ def repartition_sexe():
         func.coalesce(func.sum(SaisieActivite.points_obtenus), 0).label("total_points"),
     ).outerjoin(SaisieActivite, SaisieActivite.id_participant == Participant.id_participant)
 
-    if did:
-        query = query.filter((SaisieActivite.id_defi == did) | (SaisieActivite.id_saisie == None))
+    if did and defi:
+        pids = _defi_participant_ids(did)
+        query = query.filter(
+            Participant.id_participant.in_(pids),
+            (SaisieActivite.date_activite >= defi.date_debut) | (SaisieActivite.id_saisie == None),
+            (SaisieActivite.date_activite <= defi.date_fin) | (SaisieActivite.id_saisie == None),
+        )
 
     result = query.group_by(Participant.sexe).all()
 
@@ -152,10 +191,16 @@ def repartition_sexe():
 def resume_global():
     """Global summary stats."""
     did = request.args.get("id_defi", type=int)
+    defi = Defi.query.get(did) if did else None
 
     q = SaisieActivite.query
-    if did:
-        q = q.filter_by(id_defi=did)
+    if did and defi:
+        pids = _defi_participant_ids(did)
+        q = q.filter(
+            SaisieActivite.id_participant.in_(pids),
+            SaisieActivite.date_activite >= defi.date_debut,
+            SaisieActivite.date_activite <= defi.date_fin,
+        )
 
     saisies = q.all()
     total_points = sum(float(s.points_obtenus) for s in saisies)

@@ -1,3 +1,4 @@
+# Fait par Mathis Duvivé et Alexandre Pech-Rossell
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import date
@@ -14,13 +15,10 @@ def mes_saisies():
     participant_id = int(get_jwt_identity())
     current = Participant.query.get(participant_id)
     pid_filter = request.args.get("id_participant", type=int)
-    did_filter = request.args.get("id_defi", type=int)
     if pid_filter and current.role == "gestionnaire":
         query = SaisieActivite.query.filter_by(id_participant=pid_filter)
     else:
         query = SaisieActivite.query.filter_by(id_participant=participant_id)
-    if did_filter:
-        query = query.filter_by(id_defi=did_filter)
     saisies = query.order_by(SaisieActivite.date_activite.desc()).all()
     return jsonify([s.to_dict() for s in saisies]), 200
 
@@ -49,26 +47,16 @@ def ajouter_saisie():
         points_base = float(activite.points_mixte)
     points = calculer_points(points_base, duree, intensite)
 
-    # Build saisie — support tables with or without the intensite column
-    kwargs = dict(
+    saisie = SaisieActivite(
         date_activite=date.fromisoformat(data["date_activite"]) if data.get("date_activite") else date.today(),
         duree_minutes=duree,
+        intensite=intensite,
         points_obtenus=points,
         id_participant=participant_id,
         id_activite=data["id_activite"],
-        id_defi=data.get("id_defi"),
     )
-    # Only set intensite if the column exists (handles old DBs without migration)
-    try:
-        saisie = SaisieActivite(**kwargs, intensite=intensite)
-        db.session.add(saisie)
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        saisie = SaisieActivite(**kwargs)
-        db.session.add(saisie)
-        db.session.commit()
-
+    db.session.add(saisie)
+    db.session.commit()
     return jsonify(saisie.to_dict()), 201
 
 

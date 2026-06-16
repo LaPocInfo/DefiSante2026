@@ -1,3 +1,4 @@
+<!-- Fait par Mathis Duvivé et Alexandre Pech-Rossell -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -35,7 +36,6 @@
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
       <div class="search-bar" style="flex:1;min-width:180px"><span class="search-icon">🔍</span><input type="text" id="f-act" placeholder="Filtrer par activité..."></div>
       <select id="f-int" class="form-control" style="width:auto"><option value="">Toutes intensités</option><option value="faible">🔵 Faible</option><option value="moyenne">🟡 Moyenne</option><option value="intense">🔴 Intense</option></select>
-      <select id="f-defi" class="form-control" style="width:auto"><option value="">Tous les défis</option></select>
     </div>
   </div>
   <div id="alert-act"></div>
@@ -43,7 +43,7 @@
     <div class="table-wrap">
       <table>
         <thead><tr><th>Date</th><th>Activité</th><th>Durée</th><th>Intensité</th><th>Défi</th><th>Points</th><th></th></tr></thead>
-        <tbody id="tbody"><tr><td colspan="7"><div class="loading-center"><div class="spinner"></div></div></td></tr></tbody>
+        <tbody id="tbody"><tr><td colspan="6"><div class="loading-center"><div class="spinner"></div></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -58,11 +58,10 @@
 <script src="/js/app.js"></script>
 <script>
 if (!Auth.requireAuth()) throw 0;
-let all=[], defisMap={};
+let all=[];
 async function init(){
-  try{const d=await GET("/defis/");d.forEach(x=>{defisMap[x.id_defi]=x.nom;const o=document.createElement("option");o.value=x.id_defi;o.textContent=x.nom;document.getElementById("f-defi").appendChild(o);});}catch{}
   try{all=await GET("/saisies/");stats();render();}catch{}
-  ["f-act","f-int","f-defi"].forEach(id=>document.getElementById(id).addEventListener(id==="f-act"?"input":"change",render));
+  ["f-act","f-int"].forEach(id=>document.getElementById(id).addEventListener(id==="f-act"?"input":"change",render));
 }
 function stats(){
   const p=all.reduce((s,x)=>s+x.points_obtenus,0),m=all.reduce((s,x)=>s+x.duree_minutes,0);
@@ -72,21 +71,19 @@ function stats(){
   document.getElementById("s-h").textContent=(m/60).toFixed(1)+"h";
 }
 function render(){
-  const q=document.getElementById("f-act").value.toLowerCase(),fi=document.getElementById("f-int").value,fd=document.getElementById("f-defi").value;
+  const q=document.getElementById("f-act").value.toLowerCase(),fi=document.getElementById("f-int").value;
   let r=all;
   if(q)r=r.filter(s=>s.activite_nom?.toLowerCase().includes(q));
   if(fi)r=r.filter(s=>s.intensite===fi);
-  if(fd)r=r.filter(s=>String(s.id_defi)===fd);
   const tb=document.getElementById("tbody");
   tb.innerHTML=r.length?r.map(s=>`<tr>
     <td>${fmt.date(s.date_activite)}</td>
     <td><strong>${s.activite_nom}</strong></td>
     <td><span style="color:var(--text2)">${fmt.mins(s.duree_minutes)}</span></td>
     <td>${fmt.intensite(s.intensite)}</td>
-    <td>${s.id_defi?`<span class="badge badge-green">${defisMap[s.id_defi]||"Défi"}</span>`:'<span class="badge badge-gray">—</span>'}</td>
     <td><span class="pts-badge">+${s.points_obtenus.toFixed(1)}</span></td>
     <td><button class="btn btn-red btn-sm" onclick="confirmDel(${s.id_saisie},'${(s.activite_nom||"").replace(/'/g,"\\'")}')">✕</button></td>
-  </tr>`).join(""):`<tr><td colspan="7">${emptyState("🏃","Aucune activité","Commencez à saisir vos activités !")}</td></tr>`;
+  </tr>`).join(""):`<tr><td colspan="6">${emptyState("🏃","Aucune activité","Commencez à saisir vos activités !")}</td></tr>`;
 }
 let pendId=null;
 function confirmDel(id,nom){pendId=id;document.getElementById("del-nom").textContent=nom;openModal("m-del");}

@@ -1,3 +1,4 @@
+# Fait par Mathis Duvivé et Alexandre Pech-Rossell
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from api import db, bcrypt
@@ -111,6 +112,8 @@ def mes_defis():
     return jsonify(result), 200
 
 
+@auth_bp.route("/moi", methods=["GET"])
+@jwt_required()
 def moi():
     participant_id = int(get_jwt_identity())
     participant = Participant.query.get_or_404(participant_id)
