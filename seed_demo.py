@@ -3,7 +3,7 @@ seed_demo.py — Remplit la BDD avec des données fictives pour tester l'applica
 
 Usage :
     python seed_demo.py
-
+    docker exec -it defisante_api python seed_demo.py
 Le script crée :
   - 3 équipes
   - 10 participants (dont 1 gestionnaire) répartis dans les équipes
@@ -12,6 +12,8 @@ Le script crée :
   - ~60 saisies d'activités réparties sur les dernières semaines
 """
 
+# from api import create_app, db, bcrypt
+from api import bcrypt
 import os, sys, random
 from datetime import date, timedelta
 
@@ -94,7 +96,8 @@ def run():
 
         # 3. Participants
         participants = []
-        mdp_hash = generate_password_hash(MOT_DE_PASSE)
+        # mdp_hash = generate_password_hash(MOT_DE_PASSE)
+        mdp_hash = bcrypt.generate_password_hash(MOT_DE_PASSE).decode("utf-8"),
         equipe_cycle = equipes * 4           # 3 équipes pour 10 participants
         for i, (prenom, nom, courriel, sexe, role) in enumerate(PARTICIPANTS):
             existing = Participant.query.filter_by(courriel=courriel).first()
